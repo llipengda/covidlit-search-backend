@@ -1,0 +1,6 @@
+@CovidLitSearch_HostAddress = http://localhost:5087
+
+GET {{CovidLitSearch_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
