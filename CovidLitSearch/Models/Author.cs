@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,8 +36,4 @@ public partial class Author
     [Column("settlement")]
     [StringLength(100)]
     public string? Settlement { get; set; }
-
-    [ForeignKey("AuthorName")]
-    [InverseProperty("AuthorNames")]
-    public virtual ICollection<Article> Articles { get; set; } = new List<Article>();
 }

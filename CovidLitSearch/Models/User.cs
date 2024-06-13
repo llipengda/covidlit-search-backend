@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace CovidLitSearch.Models;
 
@@ -42,15 +39,4 @@ public partial class User
 
     [Column("save_history")]
     public bool? SaveHistory { get; set; }
-
-    [InverseProperty("User")]
-    public virtual ICollection<History> Histories { get; set; } = new List<History>();
-
-    [ForeignKey("UserId")]
-    [InverseProperty("Users")]
-    public virtual ICollection<Article> Articles { get; set; } = new List<Article>();
-
-    [ForeignKey("UserId")]
-    [InverseProperty("Users")]
-    public virtual ICollection<Journal> JournalNames { get; set; } = new List<Journal>();
 }
