@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,12 +27,4 @@ public partial class Publish
     [Column("pages")]
     [StringLength(200)]
     public string? Pages { get; set; }
-
-    [ForeignKey("ArticleId")]
-    [InverseProperty("Publishes")]
-    public virtual Article Article { get; set; } = null!;
-
-    [ForeignKey("JournalName")]
-    [InverseProperty("Publishes")]
-    public virtual Journal JournalNameNavigation { get; set; } = null!;
 }

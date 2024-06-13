@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
@@ -52,26 +50,4 @@ public partial class Article
     [Column("focus")]
     [StringLength(100)]
     public string? Focus { get; set; }
-
-    [InverseProperty("Article")]
-    public virtual ICollection<History> Histories { get; set; } = new List<History>();
-
-    [InverseProperty("Article")]
-    public virtual ICollection<Publish> Publishes { get; set; } = new List<Publish>();
-
-    [ForeignKey("ArticleId")]
-    [InverseProperty("Articles")]
-    public virtual ICollection<Author> AuthorNames { get; set; } = new List<Author>();
-
-    [ForeignKey("CitingId")]
-    [InverseProperty("Citings")]
-    public virtual ICollection<Article> Citeds { get; set; } = new List<Article>();
-
-    [ForeignKey("CitedId")]
-    [InverseProperty("Citeds")]
-    public virtual ICollection<Article> Citings { get; set; } = new List<Article>();
-
-    [ForeignKey("ArticleId")]
-    [InverseProperty("Articles")]
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

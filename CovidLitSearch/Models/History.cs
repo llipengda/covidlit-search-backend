@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,12 +20,4 @@ public partial class History
     [Key]
     [Column("time", TypeName = "timestamp(6) without time zone")]
     public DateTime Time { get; set; }
-
-    [ForeignKey("ArticleId")]
-    [InverseProperty("Histories")]
-    public virtual Article Article { get; set; } = null!;
-
-    [ForeignKey("UserId")]
-    [InverseProperty("Histories")]
-    public virtual User User { get; set; } = null!;
 }
