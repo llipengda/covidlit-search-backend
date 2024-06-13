@@ -1,4 +1,5 @@
 ﻿using CovidLitSearch.Models;
+using CovidLitSearch.Models.DTO;
 using CovidLitSearch.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,9 +9,12 @@ namespace CovidLitSearch.Controllers;
 public class ArticleController(IArticleService service) : ControllerBase
 {
     [HttpGet("api/article")]
-    public async Task<ActionResult<List<Article>>> GetArticles()
+    public async Task<ActionResult<List<ArticleDTO>>> GetArticles(
+        [FromQuery] int page,
+        [FromQuery] int pageSize
+    )
     {
-        var articles = await service.GetArticles();
+        var articles = await service.GetArticles(page, pageSize);
         return Ok(articles);
     }
 
