@@ -52,6 +52,12 @@ public class UserController(IUserService service) : ControllerBase
         );
     }
     
+    /// <summary>
+    ///  Update a user
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="userDto"></param>
+    /// <returns></returns>
     [HttpPut("update")]
     public async Task<ActionResult<User>> Update(
         [FromQuery] int id,
@@ -60,9 +66,32 @@ public class UserController(IUserService service) : ControllerBase
     {
         return (await service.Update(id, userDto)).Match<ActionResult<User>>(
             res => Ok(res),
-            error => StatusCode(StatusCodes.Status500InternalServerError)
+            _ => NoContent()
         );
     }
     
+    /// <summary>
+    /// Update a user's password
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="oldPwd"></param>
+    /// <param name="newPwd"></param>
+    /// <returns></returns>
+    [HttpPut]
+    public async Task<ActionResult<User>> UpdatePassword(
+        [FromQuery] int id,
+        [FromQuery] string oldPwd,
+        [FromQuery] string newPwd
+    )
+    {
+        return (await service.UpdatePassword(id, oldPwd, newPwd)).Match<ActionResult<User>>(
+            res => Ok(res),
+            error => error.Code switch
+            {
+                ErrorCode.InvalidCredentials => Unauthorized(error),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            }
+        );  
+    }
     
 }

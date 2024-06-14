@@ -119,9 +119,30 @@ public class UserService(DbprojectContext context, IConfiguration configuration)
             .FirstOrDefaultAsync();
     }
 
-    public Task<Result<User?, Error>> UpdatePassword(int id, string oldPwd, string newPwd)
+    public async Task<Result<User?, Error>> UpdatePassword(int id, string oldPwd, string newPwd)
     {
-        throw new NotImplementedException();
+        var user = await context.Database.SqlQuery<User>(
+                $"""
+                 SELECT * FROM "user" WHERE id = {id}
+                 """)
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
+
+        if (user is null || !PasswordUtil.VerifyPassword(oldPwd, user.Salt, user.Password))
+        {
+            return new Error(ErrorCode.InvalidCredentials);
+        }
+        
+        user.Salt = PasswordUtil.GenerateSalt();
+        user.Password = PasswordUtil.HashPassword(newPwd, user.Salt);
+        
+        await context.Database.ExecuteSqlAsync(
+            $"""
+            UPDATE "user" SET password = {user.Password}, salt = {user.Salt} WHERE id = {id}
+            """
+        );
+
+        return user;
     }
 
     private string GenerateJwtToken(User user)
