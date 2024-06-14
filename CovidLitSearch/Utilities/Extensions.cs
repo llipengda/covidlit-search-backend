@@ -1,6 +1,9 @@
-﻿using CovidLitSearch.Services;
+﻿using System.Text;
+using CovidLitSearch.Services;
 using CovidLitSearch.Services.Interface;
 using CovidLitSearch.Utilities.Filters;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -44,5 +47,27 @@ public static class Extensions
                 Type = SecuritySchemeType.ApiKey
             }
         );
+    }
+
+    public static void AddJwtAuthentication(
+        this IServiceCollection services,
+        ConfigurationManager configuration
+    )
+    {
+        services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(option =>
+                option.TokenValidationParameters = new()
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = configuration["Jwt:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = configuration["Jwt:Audience"],
+                    ValidateLifetime = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(configuration["Jwt:SecretKey"]!)
+                    )
+                }
+            );
     }
 }

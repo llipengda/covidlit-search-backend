@@ -1,18 +1,22 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Mail;
+using System.Security.Claims;
+using System.Text;
 using CovidLitSearch.Models;
 using CovidLitSearch.Models.Common;
 using CovidLitSearch.Models.DTO;
 using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CovidLitSearch.Services;
 
-public class UserService(DbprojectContext context) : IUserService
+public class UserService(DbprojectContext context, IConfiguration configuration) : IUserService
 {
     public async Task<Result<LoginDTO, Error>> Login(string email, string password)
     {
-        var data = await context
+        var user = await context
             .Database.SqlQuery<User>(
                 $"""
                 SELECT * FROM "user" WHERE email = {email}
@@ -21,12 +25,12 @@ public class UserService(DbprojectContext context) : IUserService
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
-        if (data == null || data.Password != password)
+        if (user is null || user.Password != password)
         {
             return new Error(ErrorCode.InvalidCredentials);
         }
 
-        var token = "token";
+        var token = GenerateJwtToken(user);
 
         return new LoginDTO { Email = email, Token = token };
     }
@@ -68,5 +72,26 @@ public class UserService(DbprojectContext context) : IUserService
             )
             .AsNoTracking()
             .FirstOrDefaultAsync();
+    }
+
+    private string GenerateJwtToken(User user)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(configuration["Jwt:SecretKey"]!);
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Issuer = configuration["Jwt:Issuer"],
+            Audience = configuration["Jwt:Audience"],
+            Subject = new ClaimsIdentity(
+                new[] { new Claim(ClaimTypes.Role, Enum.GetName(user.Role)!) }
+            ),
+            Expires = DateTime.UtcNow.AddDays(7),
+            SigningCredentials = new SigningCredentials(
+                new SymmetricSecurityKey(key),
+                SecurityAlgorithms.HmacSha256Signature
+            )
+        };
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
     }
 }
