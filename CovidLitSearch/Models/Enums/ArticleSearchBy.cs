@@ -1,8 +1,9 @@
 ﻿namespace CovidLitSearch.Models.Enums;
 
+[Flags]
 public enum ArticleSearchBy
 {
-    Title,
-    Author,
-    Journal,
+    Title = 1,
+    Author = 2,
+    Journal = 4
 }
