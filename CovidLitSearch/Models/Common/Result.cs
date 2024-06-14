@@ -26,3 +26,8 @@ public class Result<T, E>
     public R Match<R>(Func<T, R> onSuccess, Func<E, R> onError) =>
         IsSuccess ? onSuccess(Data!) : onError(Error!);
 }
+
+public struct Unit
+{
+    public static readonly Unit Value = new Unit();
+}
