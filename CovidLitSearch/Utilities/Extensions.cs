@@ -16,6 +16,11 @@ public static class Extensions
     {
         services.AddScoped<IArticleService, ArticleService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IAuthorService, AuthorService>();
+        services.AddScoped<IJournalService, JournalService>();
+        services.AddScoped<IHistoryService, HistoryService>();
+        services.AddScoped<ICollectService, CollectService>();
+        services.AddScoped<ISubscribeService, SubscribeService>();
         services.AddScoped<IVerifyCodeService, VerifyCodeService>();
     }
 

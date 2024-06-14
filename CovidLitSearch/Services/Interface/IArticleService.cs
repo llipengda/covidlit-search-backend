@@ -1,11 +1,12 @@
-﻿using CovidLitSearch.Models.DTO;
+﻿using CovidLitSearch.Models.Common;
+using CovidLitSearch.Models.DTO;
 using CovidLitSearch.Models.Enums;
 
 namespace CovidLitSearch.Services.Interface;
 
 public interface IArticleService
 {
-    Task<List<ArticleDTO>> GetArticles(
+    Task<Result<List<ArticleDto>, Error>> GetArticles(
         int page,
         int pageSize,
         bool allowNoUrl,
@@ -13,5 +14,17 @@ public interface IArticleService
         ArticleSearchBy? searchBy
     );
 
-    Task<ArticleDTO?> GetArticleById(string id);
+    Task<Result<ArticleDto?, Error>> GetArticleById(string id, int userId);
+
+    Task<Result<List<ArticleDto>, Error>> GetArticlesByResearch(
+        int page,
+        int pageSize,
+        string? studyType, 
+        string? addressedPopulation,
+        string? challenge,
+        string? focus
+    );
+    
+    Task<Result<List<CiteDto>, Error>> GetCites(int page, int pageSize, string id);
+    
 }

@@ -29,6 +29,12 @@ public class Result<T, E>
         IsSuccess ? onSuccess(Data!) : onError(Error!);
 }
 
+
+public struct Unit
+{
+    public static readonly Unit Value = new Unit();
+}
+
 public class Result<E>
 {
     public E? Error { get; set; }

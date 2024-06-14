@@ -2,7 +2,7 @@
 
 namespace CovidLitSearch.Models.DTO;
 
-public class ArticleDTO : Article
+public class ArticleDto : Article
 {
     [Column("journal_name")]
     public string? JournalName { get; set; } = null!;
@@ -12,4 +12,5 @@ public class ArticleDTO : Article
 
     [Column("pages")]
     public string? Pages { get; set; }
+    
 }

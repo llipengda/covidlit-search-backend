@@ -1,6 +1,7 @@
 ﻿using CovidLitSearch.Models.DTO;
 using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CovidLitSearch.Controllers;
@@ -19,7 +20,7 @@ public class ArticleController(IArticleService service) : ControllerBase
     /// <param name="searchBy"></param>
     /// <returns></returns>
     [HttpGet]
-    public async Task<ActionResult<List<ArticleDTO>>> GetArticles(
+    public async Task<ActionResult<List<ArticleDto>>> GetArticles(
         [FromQuery] int page,
         [FromQuery] int pageSize,
         [FromQuery] bool allowNoUrl = false,
@@ -32,20 +33,79 @@ public class ArticleController(IArticleService service) : ControllerBase
     }
 
     /// <summary>
-    /// Get a single article by id
+    ///  Get article by id
     /// </summary>
-    /// <param name="id">id</param>
-    /// <returns>Article</returns>
-    /// <response code="200">Success</response>
-    /// <response code="404">Not Found</response>
+    /// <param name="userId"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpGet("{id}")]
-    public async Task<ActionResult<ArticleDTO?>> GetArticleById(string id)
+    public async Task<ActionResult<ArticleDto?>> GetArticleById(
+        [FromRoute] string id,
+        [FromQuery] int userId
+        )
     {
-        var article = await service.GetArticleById(id);
-        if (article is null)
-        {
-            return NotFound();
-        }
-        return Ok(article);
+        return (await service.GetArticleById(id, userId)).Match<ActionResult<ArticleDto?>>(
+            res => Ok(res),
+            error => error.Code switch
+            {
+                ErrorCode.NoData => NotFound(),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            }
+        );
     }
+    
+    /// <summary>
+    /// Get articles by research type, addressed population, challenge, and focus
+    /// </summary>
+    /// <param name="page"></param>
+    /// <param name="pageSize"></param>
+    /// <param name="studyType"></param>
+    /// <param name="addressedPopulation"></param>
+    /// <param name="challenge"></param>
+    /// <param name="focus"></param>
+    /// <returns></returns>
+    [HttpGet("research")]
+    public async Task<ActionResult<List<ArticleDto>>> GetArticlesByResearch(
+        [FromQuery] int page,
+        [FromQuery] int pageSize,
+        [FromQuery] string? studyType = null,
+        [FromQuery] string? addressedPopulation = null,
+        [FromQuery] string? challenge = null,
+        [FromQuery] string? focus = null
+    )
+    {
+        return (await service.GetArticlesByResearch(page, pageSize, studyType, addressedPopulation, challenge, focus)).Match<ActionResult<List<ArticleDto>>>(
+            res => Ok(res),
+            error => error.Code switch
+            {
+                ErrorCode.NoData => NoContent(),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            }
+        );
+    }
+    
+    /// <summary>
+    ///  Get cites by article id
+    /// </summary>
+    /// <param name="page"></param>
+    /// <param name="pageSize"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("cite/{id}")]
+    public async Task<ActionResult<List<CiteDto>>> GetCites(
+        [FromQuery] int page,
+        [FromQuery] int pageSize,
+        [FromRoute] string id
+    )
+    {
+        return (await service.GetCites(page, pageSize, id)).Match<ActionResult<List<CiteDto>>>(
+            res => Ok(res),
+            error => error.Code switch
+            {
+                ErrorCode.NoData => NoContent(),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            }
+        );
+    }
+    
 }
