@@ -20,12 +20,12 @@ public class ArticleService(DbprojectContext context) : IArticleService
         page = page <= 0 ? 1 : page;
         var searchQuery = searchBy switch
         {
-            ArticleSearchBy.Title => $"WHERE article.title LIKE @search",
-            ArticleSearchBy.Author => $"WHERE article.authors LIKE @search",
-            ArticleSearchBy.Journal => $"WHERE article.journal LIKE @search",
+            ArticleSearchBy.Title => "WHERE article.title LIKE @search",
+            ArticleSearchBy.Author => "WHERE article.authors LIKE @search",
+            ArticleSearchBy.Journal => "WHERE article.journal LIKE @search",
             ArticleSearchBy.Title | ArticleSearchBy.Author
-                => $"WHERE article.title LIKE @search OR article.authors LIKE @search",
-            _ => $""
+                => "WHERE article.title LIKE @search OR article.authors LIKE @search",
+            _ => ""
         };
         if (!allowNoUrl)
         {
@@ -35,7 +35,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
             }
             else
             {
-                searchQuery = $"WHERE article.url IS NOT NULL";
+                searchQuery = "WHERE article.url IS NOT NULL";
             }
         }
         var query = $"""

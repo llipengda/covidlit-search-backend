@@ -1,8 +1,8 @@
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
+using System.Net.Mail;
 using CovidLitSearch.Models;
+using CovidLitSearch.Models.Common;
 using CovidLitSearch.Models.DTO;
+using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,20 +10,20 @@ namespace CovidLitSearch.Services;
 
 public class UserService(DbprojectContext context) : IUserService
 {
-    public async Task<LoginDTO> Login(string email, string password)
+    public async Task<Result<LoginDTO, Error>> Login(string email, string password)
     {
-        var data = await context.Database.SqlQuery<User>(
+        var data = await context
+            .Database.SqlQuery<User>(
                 $"""
-                 SELECT * FROM "user" WHERE email = {email}
-                 """
+                SELECT * FROM "user" WHERE email = {email}
+                """
             )
             .AsNoTracking()
             .FirstOrDefaultAsync();
-            
 
         if (data == null || data.Password != password)
         {
-            return new LoginDTO { Email = email, Token = null! };
+            return new Error(ErrorCode.InvalidCredentials);
         }
 
         var token = "token";
@@ -31,35 +31,42 @@ public class UserService(DbprojectContext context) : IUserService
         return new LoginDTO { Email = email, Token = token };
     }
 
-    public async Task<User?> Signup(string email, string password)
+    public async Task<Result<User?, Error>> Signup(string email, string password)
     {
-        var data = await context.Database.SqlQuery<User>(
+        if (!MailAddress.TryCreate(email, out var _))
+        {
+            return new Error(ErrorCode.InvalidEmail);
+        }
+
+        var data = await context
+            .Database.SqlQuery<User>(
                 $"""
-                 SELECT * FROM "user" WHERE email = {email}
-                 """
+                SELECT * FROM "user" WHERE email = {email}
+                """
             )
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
         if (data != null && data.Email == email)
         {
-            throw new Exception("Email already exists");
+            return new Error(ErrorCode.EmailAlreadyExists);
         }
+
+        var nickName = email.Split('@')[0];
 
         await context.Database.ExecuteSqlAsync(
             $"""
-             INSERT INTO "user" ("email", "password") VALUES ({email}, {password})
-             """
+            INSERT INTO "user" ("email", "password", "nickname") VALUES ({email}, {password}, {nickName})
+            """
         );
-        
-        return await context.Database.SqlQuery<User>(
+
+        return await context
+            .Database.SqlQuery<User>(
                 $"""
-                 SELECT * FROM "user" WHERE email = {email}
-                 """
+                SELECT * FROM "user" WHERE email = {email}
+                """
             )
             .AsNoTracking()
             .FirstOrDefaultAsync();
     }
-    
-    
 }

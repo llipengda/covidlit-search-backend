@@ -1,4 +1,5 @@
 using CovidLitSearch.Models;
+using CovidLitSearch.Models.Common;
 using CovidLitSearch.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,9 +7,7 @@ namespace CovidLitSearch.Services.Interface;
 
 public interface IUserService
 {
-    Task<LoginDTO> Login(string email, string password);
+    Task<Result<LoginDTO, Error>> Login(string email, string password);
 
-    Task<User?> Signup(string email, string password);
-    
-    
+    Task<Result<User?, Error>> Signup(string email, string password);
 }
