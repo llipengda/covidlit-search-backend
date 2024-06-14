@@ -25,10 +25,11 @@ public class UserController(IUserService service) : ControllerBase
     [HttpPost("signup")]
     public async Task<ActionResult<User>> Signup(
         [FromQuery] string email,
-        [FromQuery] string password
+        [FromQuery] string password,
+        [FromQuery] int code
     )
     {
-        return (await service.Signup(email, password)).Match<ActionResult<User>>(
+        return (await service.Signup(email, password, code)).Match<ActionResult<User>>(
             res => Ok(res),
             error =>
                 error.Code switch
