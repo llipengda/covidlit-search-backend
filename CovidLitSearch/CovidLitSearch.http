@@ -1,6 +1,6 @@
-@CovidLitSearch_HostAddress = http://localhost:5087
+@CovidLitSearch_HostAddress = https://localhost:32768
 
-GET {{CovidLitSearch_HostAddress}}/weatherforecast/
+GET {{CovidLitSearch_HostAddress}}/api/articles?page=1&pageSize=100&search=H1N1&searchBy=0&allowNoUrl=true
 Accept: application/json
 
 ###

@@ -5,8 +5,9 @@ using Microsoft.EntityFrameworkCore;
 namespace CovidLitSearch.Models;
 
 [Table("article")]
-[Index("Id", Name = "idx_article_id")]
-[Index("Title", Name = "idx_article_title")]
+[Index("Id", Name = "article_id_idx")]
+[Index("Title", Name = "article_title_idx")]
+[Index("Url", Name = "article_url_idx")]
 public class Article
 {
     [Key]
@@ -50,4 +51,7 @@ public class Article
     [Column("focus")]
     [StringLength(100)]
     public string? Focus { get; set; }
+
+    [Column("authors")]
+    public string? Authors { get; set; }
 }

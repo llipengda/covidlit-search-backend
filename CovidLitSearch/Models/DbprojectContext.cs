@@ -10,5 +10,7 @@ public class DbprojectContext : DbContext
         : base(options) { }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
-        optionsBuilder.UseNpgsql("Name=ConnectionStrings:DBProject");
+        optionsBuilder
+            .UseNpgsql("Name=ConnectionStrings:DBProject")
+            .EnableSensitiveDataLogging(true);
 }
