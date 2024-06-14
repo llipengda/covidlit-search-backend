@@ -5,10 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace CovidLitSearch.Controllers;
 
 [ApiController]
-[Route("api/subscribe")]
+[Route("api/subscribes")]
 public class SubscribeController(ISubscribeService service) : ControllerBase
 {
-    
     /// <summary>
     /// Subscribe to a journal
     /// </summary>
@@ -21,11 +20,12 @@ public class SubscribeController(ISubscribeService service) : ControllerBase
         var result = await service.Subscribe(userId, journalName);
         return result.Match<IActionResult>(
             res => Ok(res),
-            error => error.Code switch
-            {
-                ErrorCode.AlreadySubscribed => Conflict(error),
-                _ => StatusCode(StatusCodes.Status500InternalServerError)
-            }
+            error =>
+                error.Code switch
+                {
+                    ErrorCode.AlreadySubscribed => Conflict(error),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError)
+                }
         );
     }
 
@@ -41,14 +41,15 @@ public class SubscribeController(ISubscribeService service) : ControllerBase
     {
         return (await service.GetSubscribes(page, pageSize, userId)).Match<IActionResult>(
             res => Ok(res),
-            error => error.Code switch
-            {
-                ErrorCode.NoData => NoContent(),
-                _ => StatusCode(StatusCodes.Status500InternalServerError)
-            }
+            error =>
+                error.Code switch
+                {
+                    ErrorCode.NoData => NoContent(),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError)
+                }
         );
     }
-    
+
     /// <summary>
     ///  Delete a subscribed journal
     /// </summary>
@@ -60,11 +61,12 @@ public class SubscribeController(ISubscribeService service) : ControllerBase
     {
         return (await service.DeleteSubscribe(userId, journalName)).Match<IActionResult>(
             _ => NoContent(),
-            error => error.Code switch
-            {
-                ErrorCode.InvalidCredentials => BadRequest(error),
-                _ => StatusCode(StatusCodes.Status500InternalServerError)
-            }
+            error =>
+                error.Code switch
+                {
+                    ErrorCode.InvalidCredentials => BadRequest(error),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError)
+                }
         );
     }
 }

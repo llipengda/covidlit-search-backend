@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CovidLitSearch.Controllers;
 
 [ApiController]
-[Route("api/author")]
+[Route("api/authors")]
 public class AuthorController(IAuthorService service) : ControllerBase
 {
     /// <summary>
@@ -16,7 +16,7 @@ public class AuthorController(IAuthorService service) : ControllerBase
     /// <param name="pageSize"></param>
     /// <param name="search"></param>
     /// <returns></returns>
-    [HttpGet("authors")]
+    [HttpGet]
     public async Task<ActionResult<List<Author>>> GetAuthors(
         [FromQuery] int page,
         [FromQuery] int pageSize,
@@ -25,12 +25,12 @@ public class AuthorController(IAuthorService service) : ControllerBase
     {
         return (await service.GetAuthors(search, page, pageSize)).Match<ActionResult<List<Author>>>(
             res => Ok(res),
-            error => error.Code switch
-            {
-                ErrorCode.NoData => NoContent(),
-                _ => StatusCode(StatusCodes.Status500InternalServerError)
-            }
+            error =>
+                error.Code switch
+                {
+                    ErrorCode.NoData => NoContent(),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError)
+                }
         );
     }
-    
 }
