@@ -42,7 +42,7 @@ public class ArticleController(IArticleService service) : ControllerBase
     public async Task<ActionResult<ArticleDTO?>> GetArticleById(string id)
     {
         var article = await service.GetArticleById(id);
-        if (article == null)
+        if (article is null)
         {
             return NotFound();
         }
