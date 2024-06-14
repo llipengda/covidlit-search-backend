@@ -1,4 +1,5 @@
 using CovidLitSearch.Models.DTO;
+using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,12 +24,14 @@ public class HistoryController(IHistoryService service) : ControllerBase
         [FromQuery] int pageSize
     )
     {
-        var history = await service.GetHistory(userId, page, pageSize);
-        if (history.Count == 0)
-        {
-            return NoContent();
-        }
-        return Ok(history);
+        return (await service.GetHistory(userId, page, pageSize)).Match<ActionResult<List<HistoryDto>>>(
+            res => Ok(res),
+            error => error.Code switch
+            {
+                ErrorCode.NoData => NoContent(),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            }
+        );
     }
     
 }

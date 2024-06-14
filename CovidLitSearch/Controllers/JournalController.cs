@@ -1,4 +1,5 @@
 using CovidLitSearch.Models;
+using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,7 +23,13 @@ public class JournalController(IJournalService service) : ControllerBase
         [FromQuery] int pageSize
     )
     {
-        var journals = await service.GetJournals(search, page, pageSize);
-        return Ok(journals);
+        return (await service.GetJournals(search, page, pageSize)).Match<ActionResult<List<Journal>>>(
+            res => Ok(res),
+            error => error.Code switch
+            {
+                ErrorCode.NoData => NoContent(),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            }
+        );
     }
 }
