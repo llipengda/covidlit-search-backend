@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CovidLitSearch.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/history")]
 public class HistoryController(IHistoryService service) : ControllerBase
 {
     
