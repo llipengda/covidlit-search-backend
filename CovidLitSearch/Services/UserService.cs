@@ -7,6 +7,7 @@ using CovidLitSearch.Models.Common;
 using CovidLitSearch.Models.DTO;
 using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
+using CovidLitSearch.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -25,7 +26,7 @@ public class UserService(DbprojectContext context, IConfiguration configuration)
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
-        if (user is null || user.Password != password)
+        if (user is null || !PasswordUtil.VerifyPassword(password, user.Salt, user.Password))
         {
             return new Error(ErrorCode.InvalidCredentials);
         }
@@ -58,9 +59,13 @@ public class UserService(DbprojectContext context, IConfiguration configuration)
 
         var nickName = email.Split('@')[0];
 
+        var salt = PasswordUtil.GenerateSalt();
+
+        password = PasswordUtil.HashPassword(password, salt);
+
         await context.Database.ExecuteSqlAsync(
             $"""
-            INSERT INTO "user" ("email", "password", "nickname") VALUES ({email}, {password}, {nickName})
+            INSERT INTO "user" ("email", "password", "salt", "nickname") VALUES ({email}, {password}, {salt}, {nickName})
             """
         );
 

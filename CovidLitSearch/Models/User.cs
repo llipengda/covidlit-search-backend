@@ -43,4 +43,8 @@ public class User
 
     [Column("role")]
     public UserRole Role { get; set; }
+
+    [Column("salt")]
+    [StringLength(32)]
+    public string Salt { get; set; } = null!;
 }
