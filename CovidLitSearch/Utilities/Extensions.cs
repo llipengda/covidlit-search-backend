@@ -11,6 +11,7 @@ public static class Extensions
     public static void AddServices(this IServiceCollection services)
     {
         services.AddScoped<IArticleService, ArticleService>();
+        services.AddScoped<IUserService, UserService>();
     }
 
     public static void SetupSwagger(this SwaggerGenOptions option)
