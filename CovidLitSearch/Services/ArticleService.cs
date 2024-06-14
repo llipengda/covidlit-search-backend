@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using CovidLitSearch.Models;
+﻿using CovidLitSearch.Models;
 using CovidLitSearch.Models.DTO;
 using CovidLitSearch.Services.Interface;
 using Microsoft.EntityFrameworkCore;

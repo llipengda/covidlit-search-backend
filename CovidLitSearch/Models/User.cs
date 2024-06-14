@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace CovidLitSearch.Models;
 
 [Table("user")]
-public partial class User
+public class User
 {
     [Key]
     [Column("id")]
