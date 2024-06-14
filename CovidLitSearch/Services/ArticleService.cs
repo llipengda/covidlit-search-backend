@@ -57,9 +57,9 @@ public class ArticleService(DbprojectContext context) : IArticleService
             .ToListAsync();
     }
 
-    public async Task<ArticleDto?> GetArticleById(string id)
+    public async Task<ArticleDto?> GetArticleById(string id, int userId)
     {
-        return await context
+        var article =  await context
             .Database.SqlQuery<ArticleDto>(
                 $"""
                 SELECT article.*, publish.*
@@ -70,6 +70,17 @@ public class ArticleService(DbprojectContext context) : IArticleService
             )
             .AsNoTracking()
             .SingleOrDefaultAsync();
+
+        if (article is not null)
+        {
+            await context.Database.ExecuteSqlAsync(
+                $"""
+                 INSERT INTO history(user_id, article_id, time) VALUES ({userId}, {id}, now()) 
+                 """
+                );
+        }
+
+        return article;
     }
 
     public async Task<List<ArticleDto>> GetArticlesByResearch(int page, int pageSize, string? studyType, string? addressedPopulation, string? challenge, string? focus)
