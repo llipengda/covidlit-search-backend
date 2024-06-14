@@ -17,7 +17,8 @@ using Npgsql.Replication.PgOutput.Messages;
 
 namespace CovidLitSearch.Services;
 
-public class UserService(DbprojectContext context, IConfiguration configuration) : IUserService
+public class UserService(DbprojectContext context, IVerifyCodeService verifyCodeService)
+    : IUserService
 {
     public async Task<Result<LoginDto, Error>> Login(string email, string password)
     {
@@ -35,13 +36,17 @@ public class UserService(DbprojectContext context, IConfiguration configuration)
             return new Error(ErrorCode.InvalidCredentials);
         }
 
-        var token = GenerateJwtToken(user);
+        var token = JwtUtil.GenerateToken(user);
 
         return new LoginDto { Email = email, Token = token };
     }
 
-    public async Task<Result<User?, Error>> Signup(string email, string password)
+    public async Task<Result<User?, Error>> Signup(string email, string password, int code)
     {
+        if (!verifyCodeService.Verify(email, code))
+        {
+            return new Error(ErrorCode.InvalidVerifyCode);
+        }
         if (!MailAddress.TryCreate(email, out var _))
         {
             return new Error(ErrorCode.InvalidEmail);
@@ -69,7 +74,8 @@ public class UserService(DbprojectContext context, IConfiguration configuration)
 
         await context.Database.ExecuteSqlAsync(
             $"""
-            INSERT INTO "user" ("email", "password", "salt", "nickname") VALUES ({email}, {password}, {salt}, {nickName})
+            INSERT INTO "user" ("email", "password", "salt", "nickname") 
+            VALUES ({email}, {password}, {salt}, {nickName})
             """
         );
 
@@ -143,26 +149,5 @@ public class UserService(DbprojectContext context, IConfiguration configuration)
         );
 
         return user;
-    }
-
-    private string GenerateJwtToken(User user)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(configuration["Jwt:SecretKey"]!);
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Issuer = configuration["Jwt:Issuer"],
-            Audience = configuration["Jwt:Audience"],
-            Subject = new ClaimsIdentity(
-                new[] { new Claim(ClaimTypes.Role, Enum.GetName(user.Role)!) }
-            ),
-            Expires = DateTime.UtcNow.AddDays(7),
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(key),
-                SecurityAlgorithms.HmacSha256Signature
-            )
-        };
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
     }
 }
