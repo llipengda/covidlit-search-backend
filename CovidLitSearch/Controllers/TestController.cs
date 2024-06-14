@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CovidLitSearch.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CovidLitSearch.Controllers;
@@ -25,5 +26,12 @@ public class TestController : ControllerBase
     public IActionResult Admin()
     {
         return Ok();
+    }
+
+    [HttpGet("userId")]
+    [Authorize]
+    public ActionResult<int> UserId()
+    {
+        return Ok(User.GetId());
     }
 }

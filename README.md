@@ -4,7 +4,7 @@
 
 ```bash
 dotnet user-secrets init
-dotnet user-secrets set "ConnectionString:DBProject"  "Host=YourHost;Database=YourDatabase;Username=YourUsername;Password=YourPassword;"
+dotnet user-secrets set "ConnectionStrings:DBProject"  "Host=YourHost;Database=YourDatabase;Username=YourUsername;Password=YourPassword;"
 dotnet user-secrets set "Jwt:Issuer" "YourIssuer"
 dotnet user-secrets set "Jwt:Audience" "YourAudience"
 dotnet user-secrets set "Jwt:SecretKey" "YourSecretKey"

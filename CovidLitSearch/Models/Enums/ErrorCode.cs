@@ -8,4 +8,6 @@ public enum ErrorCode
     AlreadyCollected,
     NoData,
     AlreadySubscribed
+    CodeAlreadySent,
+    InvalidVerifyCode
 }
