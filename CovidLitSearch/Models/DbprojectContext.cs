@@ -2,7 +2,7 @@
 
 namespace CovidLitSearch.Models;
 
-public partial class DbprojectContext : DbContext
+public class DbprojectContext : DbContext
 {
     public DbprojectContext() { }
 

@@ -6,7 +6,7 @@ namespace CovidLitSearch.Models;
 
 [PrimaryKey("UserId", "ArticleId", "Time")]
 [Table("history")]
-public partial class History
+public class History
 {
     [Key]
     [Column("user_id")]

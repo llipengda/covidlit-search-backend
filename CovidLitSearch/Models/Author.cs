@@ -6,7 +6,7 @@ namespace CovidLitSearch.Models;
 
 [Table("author")]
 [Index("Name", Name = "idx_author_name")]
-public partial class Author
+public class Author
 {
     [Key]
     [Column("name")]
