@@ -10,7 +10,7 @@ public class SubscribeService(DbprojectContext context) : ISubscribeService
 {
     public async Task<Result<Subscribe?, Error>> Subscribe(int userId, string journalName)
     {
-        var collect = await context.Database.SqlQuery<Subscribe>(
+        var subscribe = await context.Database.SqlQuery<Subscribe>(
                 $"""
                  SELECT * FROM "subscribe" WHERE user_id = {userId} AND journal_name = {journalName}
                  """
@@ -18,9 +18,9 @@ public class SubscribeService(DbprojectContext context) : ISubscribeService
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
-        if (collect is not null)
+        if (subscribe is not null)
         {
-            return new Error(ErrorCode.AlreadyCollected);
+            return new Error(ErrorCode.AlreadySubscribed);
         }
         
         await context.Database.ExecuteSqlAsync(
@@ -65,7 +65,7 @@ public class SubscribeService(DbprojectContext context) : ISubscribeService
 
     public async Task<Result<Unit, Error>> DeleteSubscribe(int userId, string journalName)
     {
-        var collect = await context.Database.SqlQuery<Collect>(
+        var subscribe = await context.Database.SqlQuery<Subscribe>(
                 $"""
                  SELECT * FROM "subscribe" WHERE user_id = {userId} AND journal_name = {journalName}
                  """
@@ -73,7 +73,7 @@ public class SubscribeService(DbprojectContext context) : ISubscribeService
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
-        if (collect is null)
+        if (subscribe is null)
         {
             return new Error(ErrorCode.InvalidCredentials);
         }

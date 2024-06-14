@@ -6,5 +6,6 @@ public enum ErrorCode
     EmailAlreadyExists,
     InvalidEmail,
     AlreadyCollected,
-    NoData
+    NoData,
+    AlreadySubscribed
 }
