@@ -1,11 +1,10 @@
 using CovidLitSearch.Models;
 using CovidLitSearch.Models.DTO;
+using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CovidLitSearch.Controllers;
-
 
 [ApiController]
 [Route("api/user")]
@@ -17,8 +16,10 @@ public class UserController(IUserService service) : ControllerBase
         [FromQuery] string password
     )
     {
-        var login = await service.Login(email, password);
-        return login.Token != null ? Ok(login) : Unauthorized(login);
+        return (await service.Login(email, password)).Match<ActionResult<LoginDTO>>(
+            res => Ok(res),
+            error => Unauthorized(error)
+        );
     }
 
     [HttpPost("signup")]
@@ -27,8 +28,15 @@ public class UserController(IUserService service) : ControllerBase
         [FromQuery] string password
     )
     {
-        var signup = await service.Signup(email, password);
-        return signup != null ? Ok(signup) : Ok();
+        return (await service.Signup(email, password)).Match<ActionResult<User>>(
+            res => Ok(res),
+            error =>
+                error.Code switch
+                {
+                    ErrorCode.EmailAlreadyExists => Conflict(error),
+                    ErrorCode.InvalidEmail => BadRequest(error),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError)
+                }
+        );
     }
-    
 }
