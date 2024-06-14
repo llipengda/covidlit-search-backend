@@ -70,8 +70,27 @@ public class CollectService(DbprojectContext context) : ICollectService
         return data;
     }
 
-    public Task<Result<Collect?, Error>> DeleteCollect(int userId, string articleId)
+    public async Task<Result<Unit, Error>> DeleteCollect(int userId, string articleId)
     {
-        throw new NotImplementedException();
+        var collect = await context.Database.SqlQuery<Collect>(
+                $"""
+                 SELECT * FROM "collect" WHERE user_id = {userId} AND article_id = {articleId}
+                 """
+            )
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
+
+        if (collect is null)
+        {
+            return new Error(ErrorCode.InvalidCredentials);
+        }
+        
+        await context.Database.ExecuteSqlAsync(
+            $"""
+            DELETE FROM "collect" WHERE user_id = {userId} AND article_id = {articleId};
+            """
+        );
+
+        return new Unit();
     }
 }

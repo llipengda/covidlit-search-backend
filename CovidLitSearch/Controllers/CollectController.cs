@@ -59,6 +59,28 @@ public class CollectController(ICollectService service) : ControllerBase
         );
     }
     
+    /// <summary>
+    ///  Delete a collection
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="articleId"></param>
+    /// <returns></returns>
+    [HttpDelete]
+    public async Task<ActionResult<Unit>> DeleteCollect(
+        [FromQuery] int userId,
+        [FromQuery] string articleId
+    )
+    {
+        return (await service.DeleteCollect(userId, articleId)).Match<ActionResult<Unit>>(
+            _ => NoContent(),
+            error => error.Code switch
+            {
+                ErrorCode.InvalidCredentials => BadRequest(error),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            }
+        );
+    }
+    
     
     
 }

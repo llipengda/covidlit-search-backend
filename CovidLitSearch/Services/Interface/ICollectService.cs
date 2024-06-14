@@ -10,5 +10,5 @@ public interface ICollectService
     
     Task<Result<List<CollectDto>?, Error> > GetCollects(int page, int pageSize, int userId);
     
-    Task<Result<Collect?, Error>> DeleteCollect(int userId, string articleId);
+    Task<Result<Unit, Error>> DeleteCollect(int userId, string articleId);
 }
