@@ -6,9 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace CovidLitSearch.Controllers;
 
 [ApiController]
+[Route("api/article")]
 public class ArticleController(IArticleService service) : ControllerBase
 {
-    [HttpGet("api/article")]
+    [HttpGet("")]
     public async Task<ActionResult<List<ArticleDTO>>> GetArticles(
         [FromQuery] int page,
         [FromQuery] int pageSize
@@ -18,7 +19,7 @@ public class ArticleController(IArticleService service) : ControllerBase
         return Ok(articles);
     }
 
-    [HttpGet("api/article/{id}")]
+    [HttpGet("{id}")]
     public async Task<ActionResult<Article?>> GetArticleById(string id)
     {
         var article = await service.GetArticleById(id);

@@ -1,7 +1,7 @@
 using CovidLitSearch.Models;
 using CovidLitSearch.Services;
 using CovidLitSearch.Services.Interface;
-using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,5 +37,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseRewriter(new RewriteOptions().AddRedirect("^$", "swagger"));
 
 app.Run();
