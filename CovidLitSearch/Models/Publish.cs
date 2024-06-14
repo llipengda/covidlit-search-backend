@@ -8,7 +8,7 @@ namespace CovidLitSearch.Models;
 [Table("publish")]
 [Index("ArticleId", Name = "idx_publish_arid")]
 [Index("JournalName", Name = "idx_publish_jrname")]
-public partial class Publish
+public class Publish
 {
     [Key]
     [Column("journal_name")]

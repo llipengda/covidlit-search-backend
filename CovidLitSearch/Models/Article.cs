@@ -7,7 +7,7 @@ namespace CovidLitSearch.Models;
 [Table("article")]
 [Index("Id", Name = "idx_article_id")]
 [Index("Title", Name = "idx_article_title")]
-public partial class Article
+public class Article
 {
     [Key]
     [Column("id")]
