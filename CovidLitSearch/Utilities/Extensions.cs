@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Claims;
+using System.Text;
 using CovidLitSearch.Services;
 using CovidLitSearch.Services.Interface;
 using CovidLitSearch.Utilities.Filters;
@@ -15,6 +16,7 @@ public static class Extensions
     {
         services.AddScoped<IArticleService, ArticleService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IVerifyCodeService, VerifyCodeService>();
     }
 
     public static void SetupSwagger(this SwaggerGenOptions option)
@@ -69,5 +71,11 @@ public static class Extensions
                     )
                 }
             );
+    }
+
+    public static int GetId(this ClaimsPrincipal claims)
+    {
+        var id = claims.FindFirstValue(ClaimTypes.NameIdentifier);
+        return int.Parse(id!);
     }
 }

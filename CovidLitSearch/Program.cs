@@ -1,4 +1,5 @@
 using CovidLitSearch.Models;
+using CovidLitSearch.Models.Common;
 using CovidLitSearch.Services;
 using CovidLitSearch.Services.Interface;
 using CovidLitSearch.Utilities;
@@ -6,7 +7,7 @@ using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+AppSettings.Init(builder.Configuration);
 
 builder
     .Services.AddControllers()
@@ -22,6 +23,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options => options.SetupSwagger());
 
 builder.Services.AddJwtAuthentication(builder.Configuration);
+
+builder.Services.AddMemoryCache();
 
 builder.Services.AddDbContext<DbprojectContext>();
 

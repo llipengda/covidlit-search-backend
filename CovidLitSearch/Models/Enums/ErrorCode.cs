@@ -5,4 +5,6 @@ public enum ErrorCode
     InvalidCredentials,
     EmailAlreadyExists,
     InvalidEmail,
+    CodeAlreadySent,
+    InvalidVerifyCode
 }
