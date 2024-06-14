@@ -2,15 +2,13 @@
 
 namespace CovidLitSearch.Models;
 
-public class DbprojectContext : DbContext
+public class DbprojectContext(
+    DbContextOptions<DbprojectContext> options,
+    IConfiguration configuration
+) : DbContext(options)
 {
-    public DbprojectContext() { }
-
-    public DbprojectContext(DbContextOptions<DbprojectContext> options)
-        : base(options) { }
-
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
         optionsBuilder
-            .UseNpgsql("Name=ConnectionStrings:DBProject")
+            .UseNpgsql(configuration["ConnectionStrings:DBProject"])
             .EnableSensitiveDataLogging(true);
 }
