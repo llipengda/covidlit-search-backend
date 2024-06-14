@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CovidLitSearch.Models.Enums;
 
 namespace CovidLitSearch.Models;
 
@@ -39,4 +40,7 @@ public class User
 
     [Column("save_history")]
     public bool? SaveHistory { get; set; }
+
+    [Column("role")]
+    public UserRole Role { get; set; }
 }

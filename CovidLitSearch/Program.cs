@@ -21,6 +21,8 @@ builder
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options => options.SetupSwagger());
 
+builder.Services.AddJwtAuthentication(builder.Configuration);
+
 builder.Services.AddDbContext<DbprojectContext>();
 
 builder.Services.AddServices();
