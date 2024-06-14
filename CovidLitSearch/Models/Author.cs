@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace CovidLitSearch.Models;
 
 [Table("author")]
-[Index("Name", Name = "idx_author_name")]
+[Index("Name", Name = "author_name_idx")]
 public class Author
 {
     [Key]

@@ -1,11 +1,8 @@
 using CovidLitSearch.Models;
-using CovidLitSearch.Services;
-using CovidLitSearch.Services.Interface;
+using CovidLitSearch.Utilities;
 using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder
     .Services.AddControllers()
@@ -18,10 +15,11 @@ builder
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options => options.SetupSwagger());
 
 builder.Services.AddDbContext<DbprojectContext>();
-builder.Services.AddScoped<IArticleService, ArticleService>();
+
+builder.Services.AddServices();
 
 var app = builder.Build();
 

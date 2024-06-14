@@ -1,68 +1,72 @@
 ﻿using CovidLitSearch.Models;
 using CovidLitSearch.Models.DTO;
+using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace CovidLitSearch.Services;
 
 public class ArticleService(DbprojectContext context) : IArticleService
 {
-    public async Task<List<ArticleDTO>> GetArticles(int page, int pageSize)
+    public async Task<List<ArticleDTO>> GetArticles(
+        int page,
+        int pageSize,
+        bool allowNoUrl,
+        string? search,
+        ArticleSearchBy? searchBy
+    )
     {
         page = page <= 0 ? 1 : page;
-        var data = await context
-            .Database.SqlQuery<ArticleDTO>(
-                $"""
-                SELECT article.*, publish.*, write.author_name AS author
-                FROM article
-                LEFT JOIN publish on article.id = publish.article_id
-                LEFT JOIN write on article.id = write.article_id
-                WHERE article.url IS NOT NULL
-                LIMIT {pageSize} OFFSET {(page - 1) * pageSize}
-                """
-            )
+        var searchQuery = searchBy switch
+        {
+            ArticleSearchBy.Title => $"WHERE article.title LIKE @search",
+            ArticleSearchBy.Author => $"WHERE article.authors LIKE @search",
+            ArticleSearchBy.Journal => $"WHERE article.journal LIKE @search",
+            _ => $""
+        };
+        if (!allowNoUrl)
+        {
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                searchQuery += " AND article.url IS NOT NULL";
+            }
+            else
+            {
+                searchQuery = $"WHERE article.url IS NOT NULL";
+            }
+        }
+        var query = $"""
+            SELECT article.*, publish.*
+            FROM article
+            LEFT JOIN publish on article.id = publish.article_id
+            {searchQuery}
+            LIMIT @pageSize OFFSET @offset
+            """;
+        var parameters = new List<NpgsqlParameter>
+        {
+            new("search", $"%{search}%"),
+            new("pageSize", pageSize),
+            new("offset", (page - 1) * pageSize)
+        };
+        return await context
+            .Database.SqlQueryRaw<ArticleDTO>(query, parameters.ToArray())
             .AsNoTracking()
             .ToListAsync();
-        return data.GroupBy(a => a.Id)
-            .Select(g =>
-            {
-                var article = g.First();
-                article.Authors = g.Select(a => a.Author!).ToList();
-                if (article.Authors.All(a => a is null))
-                {
-                    article.Authors = [];
-                }
-                return article;
-            })
-            .ToList();
     }
 
-    public async Task<Article?> GetArticleById(string id)
+    public async Task<ArticleDTO?> GetArticleById(string id)
     {
-        var data = await context
+        return await context
             .Database.SqlQuery<ArticleDTO>(
                 $"""
-                SELECT article.*, publish.*, write.author_name AS author
+                SELECT article.*, publish.*
                 FROM article
                 LEFT JOIN publish on article.id = publish.article_id
-                LEFT JOIN write on article.id = write.article_id
                 WHERE id = {id}
                 """
             )
             .AsNoTracking()
-            .ToListAsync();
-
-        return data.GroupBy(a => a.Id)
-            .Select(g =>
-            {
-                var article = g.First();
-                article.Authors = g.Select(a => a.Author!).ToList();
-                if (article.Authors.All(a => a is null))
-                {
-                    article.Authors = [];
-                }
-                return article;
-            })
-            .FirstOrDefault();
+            .SingleOrDefaultAsync();
     }
 }

@@ -6,8 +6,8 @@ namespace CovidLitSearch.Models;
 
 [PrimaryKey("JournalName", "ArticleId")]
 [Table("publish")]
-[Index("ArticleId", Name = "idx_publish_arid")]
-[Index("JournalName", Name = "idx_publish_jrname")]
+[Index("ArticleId", Name = "publish_article_id_idx")]
+[Index("JournalName", Name = "publish_journal_name_idx")]
 public class Publish
 {
     [Key]
