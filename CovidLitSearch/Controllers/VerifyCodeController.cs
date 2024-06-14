@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CovidLitSearch.Controllers;
 
 [ApiController]
-[Route("api/verify-code")]
+[Route("api/codes")]
 public class VerifyCodeController(IVerifyCodeService service) : ControllerBase
 {
     [HttpPost("send")]

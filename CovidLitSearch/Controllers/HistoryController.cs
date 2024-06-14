@@ -6,10 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace CovidLitSearch.Controllers;
 
 [ApiController]
-[Route("api/history")]
+[Route("api/histories")]
 public class HistoryController(IHistoryService service) : ControllerBase
 {
-    
     /// <summary>
     /// Get history by user id
     /// </summary>
@@ -24,14 +23,16 @@ public class HistoryController(IHistoryService service) : ControllerBase
         [FromQuery] int pageSize
     )
     {
-        return (await service.GetHistory(userId, page, pageSize)).Match<ActionResult<List<HistoryDto>>>(
+        return (await service.GetHistory(userId, page, pageSize)).Match<
+            ActionResult<List<HistoryDto>>
+        >(
             res => Ok(res),
-            error => error.Code switch
-            {
-                ErrorCode.NoData => NoContent(),
-                _ => StatusCode(StatusCodes.Status500InternalServerError)
-            }
+            error =>
+                error.Code switch
+                {
+                    ErrorCode.NoData => NoContent(),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError)
+                }
         );
     }
-    
 }

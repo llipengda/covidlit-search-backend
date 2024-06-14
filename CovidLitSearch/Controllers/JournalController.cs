@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CovidLitSearch.Controllers;
 
 [ApiController]
-[Route("api/journal")]
+[Route("api/journals")]
 public class JournalController(IJournalService service) : ControllerBase
 {
     /// <summary>
@@ -16,20 +16,23 @@ public class JournalController(IJournalService service) : ControllerBase
     /// <param name="page"></param>
     /// <param name="pageSize"></param>
     /// <returns></returns>
-    [HttpGet("journals")]
+    [HttpGet]
     public async Task<ActionResult<List<Journal>>> GetJournals(
         [FromQuery] string search,
         [FromQuery] int page,
         [FromQuery] int pageSize
     )
     {
-        return (await service.GetJournals(search, page, pageSize)).Match<ActionResult<List<Journal>>>(
+        return (await service.GetJournals(search, page, pageSize)).Match<
+            ActionResult<List<Journal>>
+        >(
             res => Ok(res),
-            error => error.Code switch
-            {
-                ErrorCode.NoData => NoContent(),
-                _ => StatusCode(StatusCodes.Status500InternalServerError)
-            }
+            error =>
+                error.Code switch
+                {
+                    ErrorCode.NoData => NoContent(),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError)
+                }
         );
     }
 }
