@@ -9,6 +9,7 @@ public class HistoryService(DbprojectContext context) : IHistoryService
 {
     public async Task<List<HistoryDto>> GetHistory(int userId, int page, int pageSize)
     {
+        page = page < 1 ? 1 : page;
         return await context.Database
             .SqlQuery<HistoryDto>(
                 $"""
@@ -27,7 +28,6 @@ public class HistoryService(DbprojectContext context) : IHistoryService
                  ORDER BY
                    "time" DESC
                  LIMIT {pageSize} OFFSET {( page - 1 ) * pageSize} 
-                   
                  """
             )
             .AsNoTracking()

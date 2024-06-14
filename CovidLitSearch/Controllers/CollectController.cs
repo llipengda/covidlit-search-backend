@@ -1,4 +1,6 @@
 using CovidLitSearch.Models;
+using CovidLitSearch.Models.Common;
+using CovidLitSearch.Models.DTO;
 using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
@@ -32,5 +34,31 @@ public class CollectController(ICollectService service) : ControllerBase
         );
         
     }
+    
+    /// <summary>
+    ///  Get collection list
+    /// </summary>
+    /// <param name="page"></param>
+    /// <param name="pageSize"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    [HttpGet]
+    public async Task<ActionResult<List<CollectDto>>> GetCollects(
+        [FromQuery] int page,
+        [FromQuery] int pageSize,
+        [FromQuery] int userId
+    )
+    {
+        return (await service.GetCollects(page, pageSize, userId)).Match<ActionResult<List<CollectDto>>>(
+            res => Ok(res),
+            error => error.Code switch
+            {
+                ErrorCode.NoData => NoContent(),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            }
+        );
+    }
+    
+    
     
 }
