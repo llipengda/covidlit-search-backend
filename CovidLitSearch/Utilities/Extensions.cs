@@ -17,6 +17,7 @@ public static class Extensions
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthorService, AuthorService>();
         services.AddScoped<IJournalService, JournalService>();
+        services.AddScoped<IHistoryService, HistoryService>();
     }
 
     public static void SetupSwagger(this SwaggerGenOptions option)
