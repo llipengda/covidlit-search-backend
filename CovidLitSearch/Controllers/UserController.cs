@@ -10,6 +10,12 @@ namespace CovidLitSearch.Controllers;
 [Route("api/user")]
 public class UserController(IUserService service) : ControllerBase
 {
+    /// <summary>
+    ///  Login a user
+    /// </summary>
+    /// <param name="email"></param>
+    /// <param name="password"></param>
+    /// <returns></returns>
     [HttpPost("login")]
     public async Task<ActionResult<LoginDto>> Login(
         [FromQuery] string email,
@@ -22,6 +28,12 @@ public class UserController(IUserService service) : ControllerBase
         );
     }
 
+    /// <summary>
+    ///   Signup a new user
+    /// </summary>
+    /// <param name="email"></param>
+    /// <param name="password"></param>
+    /// <returns></returns>
     [HttpPost("signup")]
     public async Task<ActionResult<User>> Signup(
         [FromQuery] string email,
@@ -39,4 +51,18 @@ public class UserController(IUserService service) : ControllerBase
                 }
         );
     }
+    
+    [HttpPut("update")]
+    public async Task<ActionResult<User>> Update(
+        [FromQuery] int id,
+        [FromBody] UserDto userDto
+    )
+    {
+        return (await service.Update(id, userDto)).Match<ActionResult<User>>(
+            res => Ok(res),
+            error => StatusCode(StatusCodes.Status500InternalServerError)
+        );
+    }
+    
+    
 }
