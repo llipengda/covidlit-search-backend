@@ -1,4 +1,5 @@
 using CovidLitSearch.Models;
+using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,8 +23,14 @@ public class AuthorController(IAuthorService service) : ControllerBase
         [FromQuery] string? search = null
     )
     {
-        var authors = await service.GetAuthors(search, page, pageSize);
-        return Ok(authors);
+        return (await service.GetAuthors(search, page, pageSize)).Match<ActionResult<List<Author>>>(
+            res => Ok(res),
+            error => error.Code switch
+            {
+                ErrorCode.NoData => NoContent(),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            }
+        );
     }
     
 }

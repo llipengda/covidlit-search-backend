@@ -1,4 +1,5 @@
 ﻿using CovidLitSearch.Models;
+using CovidLitSearch.Models.Common;
 using CovidLitSearch.Models.DTO;
 using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
@@ -9,7 +10,7 @@ namespace CovidLitSearch.Services;
 
 public class ArticleService(DbprojectContext context) : IArticleService
 {
-    public async Task<List<ArticleDto>> GetArticles(
+    public async Task<Result<List<ArticleDto>, Error>> GetArticles(
         int page,
         int pageSize,
         bool allowNoUrl,
@@ -57,7 +58,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
             .ToListAsync();
     }
 
-    public async Task<ArticleDto?> GetArticleById(string id, int userId)
+    public async Task<Result<ArticleDto?, Error>> GetArticleById(string id, int userId)
     {
         var article =  await context
             .Database.SqlQuery<ArticleDto>(
@@ -71,6 +72,11 @@ public class ArticleService(DbprojectContext context) : IArticleService
             .AsNoTracking()
             .SingleOrDefaultAsync();
 
+        if (article is null)
+        {
+            return new Error(ErrorCode.NoData);
+        }
+        
         if (article is not null)
         {
             await context.Database.ExecuteSqlAsync(
@@ -83,9 +89,9 @@ public class ArticleService(DbprojectContext context) : IArticleService
         return article;
     }
 
-    public async Task<List<ArticleDto>> GetArticlesByResearch(int page, int pageSize, string? studyType, string? addressedPopulation, string? challenge, string? focus)
+    public async Task<Result<List<ArticleDto>, Error>> GetArticlesByResearch(int page, int pageSize, string? studyType, string? addressedPopulation, string? challenge, string? focus)
     {
-        return await context.Database.SqlQuery<ArticleDto>(
+        var data =  await context.Database.SqlQuery<ArticleDto>(
                 $"""
                  SELECT "id", "title", "abstract", "doi", "license", 
                    "publish_time", "url", "study_type", "addressed_population",
@@ -104,12 +110,19 @@ public class ArticleService(DbprojectContext context) : IArticleService
                  """
             ).AsNoTracking()
             .ToListAsync();
+
+        if (data.Count == 0)
+        {
+            return new Error(ErrorCode.NoData);
+        }
+
+        return data;
     }
 
-    public async Task<List<CiteDto>> GetCites(int page, int pageSize, string id)
+    public async Task<Result<List<CiteDto>, Error>> GetCites(int page, int pageSize, string id)
     {
         page = page <= 0 ? 1 : page;
-        return await context.Database.SqlQuery<CiteDto>(
+        var data =  await context.Database.SqlQuery<CiteDto>(
             $"""
              WITH RECURSIVE c AS (
                SELECT citing_id, cited_id
@@ -124,5 +137,12 @@ public class ArticleService(DbprojectContext context) : IArticleService
             )
             .AsNoTracking()
             .ToListAsync();
+
+        if (data.Count == 0)
+        {
+            return new Error(ErrorCode.NoData);
+        }
+
+        return data;
     }
 }

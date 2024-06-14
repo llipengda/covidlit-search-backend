@@ -1,8 +1,9 @@
 using CovidLitSearch.Models;
+using CovidLitSearch.Models.Common;
 
 namespace CovidLitSearch.Services.Interface;
 
 public interface IJournalService
 {
-    Task<List<Journal>> GetJournals(string search, int page, int pageSize);
+    Task<Result<List<Journal>, Error>> GetJournals(string search, int page, int pageSize);
 }

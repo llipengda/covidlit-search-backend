@@ -1,6 +1,7 @@
 ﻿using CovidLitSearch.Models.DTO;
 using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CovidLitSearch.Controllers;
@@ -43,12 +44,14 @@ public class ArticleController(IArticleService service) : ControllerBase
         [FromQuery] int userId
         )
     {
-        var article = await service.GetArticleById(id, userId);
-        if (article is null)
-        {
-            return NotFound();
-        }
-        return Ok(article);
+        return (await service.GetArticleById(id, userId)).Match<ActionResult<ArticleDto?>>(
+            res => Ok(res),
+            error => error.Code switch
+            {
+                ErrorCode.NoData => NotFound(),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            }
+        );
     }
     
     /// <summary>
@@ -71,8 +74,14 @@ public class ArticleController(IArticleService service) : ControllerBase
         [FromQuery] string? focus = null
     )
     {
-        var articles = await service.GetArticlesByResearch(page, pageSize, studyType, addressedPopulation, challenge, focus);
-        return Ok(articles);
+        return (await service.GetArticlesByResearch(page, pageSize, studyType, addressedPopulation, challenge, focus)).Match<ActionResult<List<ArticleDto>>>(
+            res => Ok(res),
+            error => error.Code switch
+            {
+                ErrorCode.NoData => NoContent(),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            }
+        );
     }
     
     /// <summary>
@@ -89,8 +98,14 @@ public class ArticleController(IArticleService service) : ControllerBase
         [FromRoute] string id
     )
     {
-        var cites = await service.GetCites(page, pageSize, id);
-        return Ok(cites);
+        return (await service.GetCites(page, pageSize, id)).Match<ActionResult<List<CiteDto>>>(
+            res => Ok(res),
+            error => error.Code switch
+            {
+                ErrorCode.NoData => NoContent(),
+                _ => StatusCode(StatusCodes.Status500InternalServerError)
+            }
+        );
     }
     
 }
