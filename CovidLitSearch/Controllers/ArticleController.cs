@@ -32,16 +32,18 @@ public class ArticleController(IArticleService service) : ControllerBase
     }
 
     /// <summary>
-    /// Get a single article by id
+    ///  Get article by id
     /// </summary>
-    /// <param name="id">id</param>
-    /// <returns>Article</returns>
-    /// <response code="200">Success</response>
-    /// <response code="404">Not Found</response>
+    /// <param name="userId"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpGet("{id}")]
-    public async Task<ActionResult<ArticleDto?>> GetArticleById(string id)
+    public async Task<ActionResult<ArticleDto?>> GetArticleById(
+        [FromRoute] string id,
+        [FromQuery] int userId
+        )
     {
-        var article = await service.GetArticleById(id);
+        var article = await service.GetArticleById(id, userId);
         if (article is null)
         {
             return NotFound();

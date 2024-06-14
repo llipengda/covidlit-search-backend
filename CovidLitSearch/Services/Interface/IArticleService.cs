@@ -13,7 +13,7 @@ public interface IArticleService
         ArticleSearchBy? searchBy
     );
 
-    Task<ArticleDto?> GetArticleById(string id);
+    Task<ArticleDto?> GetArticleById(string id, int userId);
 
     Task<List<ArticleDto>> GetArticlesByResearch(
         int page,
