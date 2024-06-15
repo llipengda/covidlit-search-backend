@@ -1,6 +1,6 @@
 namespace CovidLitSearch.Models.DTO;
 
-public class NotAFile
+public class LoginDto
 {
     
     public string Email { get; set; } = null!;

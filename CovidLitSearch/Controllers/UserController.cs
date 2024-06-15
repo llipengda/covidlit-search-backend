@@ -17,12 +17,12 @@ public class UserController(IUserService service) : ControllerBase
     /// <param name="password"></param>
     /// <returns></returns>
     [HttpPost("login")]
-    public async Task<ActionResult<NotAFile>> Login(
+    public async Task<ActionResult<LoginDto>> Login(
         [FromQuery] string email,
         [FromQuery] string password
     )
     {
-        return (await service.Login(email, password)).Match<ActionResult<NotAFile>>(
+        return (await service.Login(email, password)).Match<ActionResult<LoginDto>>(
             res => Ok(res),
             error => Unauthorized(error)
         );
