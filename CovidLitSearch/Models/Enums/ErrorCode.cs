@@ -7,7 +7,7 @@ public enum ErrorCode
     InvalidEmail,
     AlreadyCollected,
     NoData,
-    AlreadySubscribed
+    AlreadySubscribed,
     CodeAlreadySent,
     InvalidVerifyCode
 }
