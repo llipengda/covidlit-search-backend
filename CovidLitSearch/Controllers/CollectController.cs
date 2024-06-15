@@ -8,10 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace CovidLitSearch.Controllers;
 
 [ApiController]
-[Route("api/collect")]
+[Route("api/collects")]
 public class CollectController(ICollectService service) : ControllerBase
 {
-    
     /// <summary>
     ///  Collect an article
     /// </summary>
@@ -26,15 +25,15 @@ public class CollectController(ICollectService service) : ControllerBase
     {
         return (await service.Collect(userId, articleId)).Match<ActionResult<Collect>>(
             res => Ok(res),
-            error => error.Code switch
-            {
-                ErrorCode.AlreadyCollected => Conflict(error),
-                _ => StatusCode(StatusCodes.Status500InternalServerError)
-            }
+            error =>
+                error.Code switch
+                {
+                    ErrorCode.AlreadyCollected => Conflict(error),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError)
+                }
         );
-        
     }
-    
+
     /// <summary>
     ///  Get collection list
     /// </summary>
@@ -49,16 +48,19 @@ public class CollectController(ICollectService service) : ControllerBase
         [FromQuery] int userId
     )
     {
-        return (await service.GetCollects(page, pageSize, userId)).Match<ActionResult<List<CollectDto>>>(
+        return (await service.GetCollects(page, pageSize, userId)).Match<
+            ActionResult<List<CollectDto>>
+        >(
             res => Ok(res),
-            error => error.Code switch
-            {
-                ErrorCode.NoData => NoContent(),
-                _ => StatusCode(StatusCodes.Status500InternalServerError)
-            }
+            error =>
+                error.Code switch
+                {
+                    ErrorCode.NoData => NoContent(),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError)
+                }
         );
     }
-    
+
     /// <summary>
     ///  Delete a collection
     /// </summary>
@@ -73,14 +75,12 @@ public class CollectController(ICollectService service) : ControllerBase
     {
         return (await service.DeleteCollect(userId, articleId)).Match<ActionResult<Unit>>(
             _ => NoContent(),
-            error => error.Code switch
-            {
-                ErrorCode.InvalidCredentials => BadRequest(error),
-                _ => StatusCode(StatusCodes.Status500InternalServerError)
-            }
+            error =>
+                error.Code switch
+                {
+                    ErrorCode.InvalidCredentials => BadRequest(error),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError)
+                }
         );
     }
-    
-    
-    
 }
