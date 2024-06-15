@@ -20,7 +20,7 @@ namespace CovidLitSearch.Services;
 public class UserService(DbprojectContext context, IVerifyCodeService verifyCodeService)
     : IUserService
 {
-    public async Task<Result<NotAFile, Error>> Login(string email, string password)
+    public async Task<Result<LoginDto, Error>> Login(string email, string password)
     {
         var user = await context
             .Database.SqlQuery<User>(
@@ -38,7 +38,7 @@ public class UserService(DbprojectContext context, IVerifyCodeService verifyCode
 
         var token = JwtUtil.GenerateToken(user);
 
-        return new NotAFile { Email = email, Token = token };
+        return new LoginDto { Email = email, Token = token };
     }
 
     public async Task<Result<User?, Error>> Signup(string email, string password, int code)

@@ -7,7 +7,7 @@ namespace CovidLitSearch.Services.Interface;
 
 public interface IUserService
 {
-    Task<Result<NotAFile, Error>> Login(string email, string password);
+    Task<Result<LoginDto, Error>> Login(string email, string password);
 
     Task<Result<User?, Error>> Update(int id, UserDto userDto);
     
