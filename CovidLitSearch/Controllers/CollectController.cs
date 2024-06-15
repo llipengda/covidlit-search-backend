@@ -1,36 +1,29 @@
+using System.ComponentModel.DataAnnotations;
 using CovidLitSearch.Models;
-using CovidLitSearch.Models.Common;
 using CovidLitSearch.Models.DTO;
-using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
+using CovidLitSearch.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CovidLitSearch.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/collects")]
 public class CollectController(ICollectService service) : ControllerBase
 {
     /// <summary>
     ///  Collect an article
     /// </summary>
-    /// <param name="userId"></param>
     /// <param name="articleId"></param>
     /// <returns></returns>
-    [HttpPost]
-    public async Task<ActionResult<Collect>> Collect(
-        [FromQuery] int userId,
-        [FromQuery] string articleId
-    )
+    [HttpPost("{articleId}")]
+    public async Task<ActionResult<Collect>> Collect(string articleId)
     {
-        return (await service.Collect(userId, articleId)).Match<ActionResult<Collect>>(
-            res => Ok(res),
-            error =>
-                error.Code switch
-                {
-                    ErrorCode.AlreadyCollected => Conflict(error),
-                    _ => StatusCode(StatusCodes.Status500InternalServerError)
-                }
+        return (await service.Collect(User.GetId(), articleId)).Match<ActionResult<Collect>>(
+            res => Created($"/article/{res.ArticleId}", res),
+            err => Conflict(err)
         );
     }
 
@@ -39,48 +32,28 @@ public class CollectController(ICollectService service) : ControllerBase
     /// </summary>
     /// <param name="page"></param>
     /// <param name="pageSize"></param>
-    /// <param name="userId"></param>
     /// <returns></returns>
     [HttpGet]
     public async Task<ActionResult<List<CollectDto>>> GetCollects(
-        [FromQuery] int page,
-        [FromQuery] int pageSize,
-        [FromQuery] int userId
+        [Required] int page,
+        [Required] int pageSize
     )
     {
-        return (await service.GetCollects(page, pageSize, userId)).Match<
-            ActionResult<List<CollectDto>>
-        >(
-            res => Ok(res),
-            error =>
-                error.Code switch
-                {
-                    ErrorCode.NoData => NoContent(),
-                    _ => StatusCode(StatusCodes.Status500InternalServerError)
-                }
-        );
+        return (await service.GetCollects(page, pageSize, User.GetId())).Unwrap();
     }
 
     /// <summary>
     ///  Delete a collection
     /// </summary>
-    /// <param name="userId"></param>
     /// <param name="articleId"></param>
     /// <returns></returns>
-    [HttpDelete]
-    public async Task<ActionResult<Unit>> DeleteCollect(
-        [FromQuery] int userId,
-        [FromQuery] string articleId
-    )
+    /// <response code="204">Successfully deleted</response>
+    /// <response code="400">Bad request</response>
+    [HttpDelete("{articleId}")]
+    public async Task<ActionResult> DeleteCollect(string articleId)
     {
-        return (await service.DeleteCollect(userId, articleId)).Match<ActionResult<Unit>>(
-            _ => NoContent(),
-            error =>
-                error.Code switch
-                {
-                    ErrorCode.InvalidCredentials => BadRequest(error),
-                    _ => StatusCode(StatusCodes.Status500InternalServerError)
-                }
+        return (await service.DeleteCollect(User.GetId(), articleId)).Match<ActionResult>(
+            NoContent, BadRequest
         );
     }
 }

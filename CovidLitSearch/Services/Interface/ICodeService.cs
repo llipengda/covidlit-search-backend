@@ -2,9 +2,9 @@
 
 namespace CovidLitSearch.Services.Interface;
 
-public interface IVerifyCodeService
+public interface ICodeService
 {
     Result<Error> Send(string email);
 
-    bool Verify(string email, int code);
+    Result<bool, Error> Verify(string email, int code);
 }

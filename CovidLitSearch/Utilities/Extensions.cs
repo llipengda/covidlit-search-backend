@@ -21,7 +21,7 @@ public static class Extensions
         services.AddScoped<IHistoryService, HistoryService>();
         services.AddScoped<ICollectService, CollectService>();
         services.AddScoped<ISubscribeService, SubscribeService>();
-        services.AddScoped<IVerifyCodeService, VerifyCodeService>();
+        services.AddScoped<ICodeService, CodeService>();
     }
 
     public static void SetupSwagger(this SwaggerGenOptions option)
@@ -78,9 +78,30 @@ public static class Extensions
             );
     }
 
-    public static int GetId(this ClaimsPrincipal claims)
+    /// <summary>
+    /// Try to get name identifier from claims.
+    /// If the name identifier does not exist, return null.
+    /// </summary>
+    /// <param name="claims"></param>
+    /// <returns></returns>
+    public static int? TryGetId(this ClaimsPrincipal claims)
     {
         var id = claims.FindFirstValue(ClaimTypes.NameIdentifier);
-        return int.Parse(id!);
+        return int.TryParse(id, out var result) ? result : null;
+    }
+
+    /// <summary>
+    /// Get name identifier from claims.
+    /// Assume that the name identifier exists.
+    /// Otherwise, throw an exception.
+    /// </summary>
+    /// <param name="claims"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException">Name identifier not found in claims</exception>
+    public static int GetId(this ClaimsPrincipal claims)
+    {
+        var id = claims.FindFirstValue(ClaimTypes.NameIdentifier)
+                 ?? throw new InvalidOperationException("Name identifier not found in claims");
+        return int.Parse(id);
     }
 }

@@ -1,7 +1,9 @@
-using CovidLitSearch.Models;
+using System.ComponentModel.DataAnnotations;
 using CovidLitSearch.Models.DTO;
 using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
+using CovidLitSearch.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CovidLitSearch.Controllers;
@@ -18,8 +20,8 @@ public class UserController(IUserService service) : ControllerBase
     /// <returns></returns>
     [HttpPost("login")]
     public async Task<ActionResult<LoginDto>> Login(
-        [FromQuery] string email,
-        [FromQuery] string password
+        [Required] string email,
+        [Required] string password
     )
     {
         return (await service.Login(email, password)).Match<ActionResult<LoginDto>>(
@@ -36,13 +38,13 @@ public class UserController(IUserService service) : ControllerBase
     /// <param name="code"></param>
     /// <returns></returns>
     [HttpPost("signup")]
-    public async Task<ActionResult<User>> Signup(
-        [FromQuery] string email,
-        [FromQuery] string password,
-        [FromQuery] int code
+    public async Task<ActionResult<UserDto>> Signup(
+        [Required] string email,
+        [Required] string password,
+        [Required] int code
     )
     {
-        return (await service.Signup(email, password, code)).Match<ActionResult<User>>(
+        return (await service.Signup(email, password, code)).Match<ActionResult<UserDto>>(
             res => Ok(res),
             error =>
                 error.Code switch
@@ -57,40 +59,42 @@ public class UserController(IUserService service) : ControllerBase
     /// <summary>
     ///  Update a user
     /// </summary>
-    /// <param name="id"></param>
     /// <param name="userDto"></param>
     /// <returns></returns>
     [HttpPut("update")]
-    public async Task<ActionResult<User>> Update([FromQuery] int id, [FromBody] UserDto userDto)
+    [Authorize]
+    public async Task<ActionResult<UserDto>> Update([FromBody][Required] UserDto userDto)
     {
-        return (await service.Update(id, userDto)).Match<ActionResult<User>>(
+        return (await service.Update(User.GetId(), userDto)).Match<ActionResult<UserDto>>(
             res => Ok(res),
             _ => NoContent()
         );
     }
 
     /// <summary>
-    /// Update a user's password
+    /// Update a user's password 
+    /// either by code or old password
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="code"></param>
     /// <param name="oldPwd"></param>
     /// <param name="newPwd"></param>
     /// <returns></returns>
-    [HttpPut]
-    public async Task<ActionResult<User>> UpdatePassword(
-        [FromQuery] int id,
-        [FromQuery] string oldPwd,
-        [FromQuery] string newPwd
+    [HttpPut("update-password")]
+    [Authorize]
+    public async Task<ActionResult<UserDto>> UpdatePassword(
+        int? code,
+        string? oldPwd,
+        [Required] string newPwd
     )
     {
-        return (await service.UpdatePassword(id, oldPwd, newPwd)).Match<ActionResult<User>>(
+        if (code is null && oldPwd is not null)
+        {
+            return BadRequest("Old password or code is required");
+        }
+        
+        return (await service.UpdatePassword(User.GetId(), code, oldPwd, newPwd)).Match<ActionResult<UserDto>>(
             res => Ok(res),
-            error =>
-                error.Code switch
-                {
-                    ErrorCode.InvalidCredentials => Unauthorized(error),
-                    _ => StatusCode(StatusCodes.Status500InternalServerError)
-                }
+            error => Unauthorized(error)
         );
     }
 }

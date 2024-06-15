@@ -6,7 +6,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace CovidLitSearch.Services;
 
-public class VerifyCodeService(IMemoryCache cache) : IVerifyCodeService
+public class CodeService(IMemoryCache cache) : ICodeService
 {
     public Result<Error> Send(string email)
     {
@@ -35,7 +35,7 @@ public class VerifyCodeService(IMemoryCache cache) : IVerifyCodeService
                     Your verification code is：
                     <span style="font-size: 24px; color: #b70031; font-weight: 700">{code}</span>
                   </p>
-                  <p>It will exprie in 5 minutes.</p>
+                  <p>It will expire in 5 minutes.</p>
                   <p style="font-size: 14px; color: #888888; margin-top: 20px">
                     CovidLitSearch
                   </p>
@@ -52,7 +52,7 @@ public class VerifyCodeService(IMemoryCache cache) : IVerifyCodeService
         return new();
     }
 
-    public bool Verify(string email, int code)
+    public Result<bool, Error> Verify(string email, int code)
     {
         cache.TryGetValue(email, out int? storedCode);
         if (code == storedCode)

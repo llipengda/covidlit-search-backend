@@ -1,23 +1,24 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace CovidLitSearch.Models.Common;
+﻿namespace CovidLitSearch.Models.Common;
 
 public class Result<T, E>
 {
-    public T? Data { get; set; }
-    public E? Error { get; set; }
+    private readonly T? data;
+
+    private readonly E? error;
+
     public bool IsSuccess { get; }
+
     public bool IsError => !IsSuccess;
 
     public Result(T data)
     {
-        Data = data;
+        this.data = data;
         IsSuccess = true;
     }
 
     public Result(E error)
     {
-        Error = error;
+        this.error = error;
         IsSuccess = false;
     }
 
@@ -26,19 +27,17 @@ public class Result<T, E>
     public static implicit operator Result<T, E>(E error) => new(error);
 
     public R Match<R>(Func<T, R> onSuccess, Func<E, R> onError) =>
-        IsSuccess ? onSuccess(Data!) : onError(Error!);
-}
+        IsSuccess ? onSuccess(data!) : onError(error!);
 
-
-public struct Unit
-{
-    public static readonly Unit Value = new Unit();
+    public T Unwrap() => IsSuccess ? data! : throw new Exception(error!.ToString());
 }
 
 public class Result<E>
 {
-    public E? Error { get; set; }
+    private readonly E? error;
+
     public bool IsSuccess { get; }
+
     public bool IsError => !IsSuccess;
 
     public Result()
@@ -48,12 +47,14 @@ public class Result<E>
 
     public Result(E error)
     {
-        Error = error;
+        this.error = error;
         IsSuccess = false;
     }
 
     public static implicit operator Result<E>(E error) => new(error);
 
     public R Match<R>(Func<R> onSuccess, Func<E, R> onError) =>
-        IsSuccess ? onSuccess() : onError(Error!);
+        IsSuccess ? onSuccess() : onError(error!);
+
+    public void Unwrap() => _ = IsSuccess ? true : throw new Exception(error!.ToString());
 }

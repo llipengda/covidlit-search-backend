@@ -1,9 +1,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using System.IdentityModel.Tokens.Jwt;
 using System.Net.Mail;
 using System.Reflection;
-using System.Security.Claims;
-using System.Text;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using CovidLitSearch.Models;
 using CovidLitSearch.Models.Common;
 using CovidLitSearch.Models.DTO;
@@ -11,13 +10,11 @@ using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
 using CovidLitSearch.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Npgsql;
-using Npgsql.Replication.PgOutput.Messages;
 
 namespace CovidLitSearch.Services;
 
-public class UserService(DbprojectContext context, IVerifyCodeService verifyCodeService)
+public class UserService(DbprojectContext context, ICodeService codeService, IMapper mapper)
     : IUserService
 {
     public async Task<Result<LoginDto, Error>> Login(string email, string password)
@@ -31,23 +28,27 @@ public class UserService(DbprojectContext context, IVerifyCodeService verifyCode
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
-        if (user is null || !PasswordUtil.VerifyPassword(password, user.Salt, user.Password))
+        if (user is null || !PasswordUtil.Verify(password, user.Salt, user.Password))
         {
             return new Error(ErrorCode.InvalidCredentials);
         }
 
         var token = JwtUtil.GenerateToken(user);
 
-        return new LoginDto { Email = email, Token = token };
+        var loginDto = mapper.Map<LoginDto>(user);
+
+        loginDto.Token = token;
+
+        return loginDto;
     }
 
-    public async Task<Result<User?, Error>> Signup(string email, string password, int code)
+    public async Task<Result<UserDto, Error>> Signup(string email, string password, int code)
     {
-        if (!verifyCodeService.Verify(email, code))
+        if (!codeService.Verify(email, code).Unwrap())
         {
             return new Error(ErrorCode.InvalidVerifyCode);
         }
-        if (!MailAddress.TryCreate(email, out var _))
+        if (!MailAddress.TryCreate(email, out _))
         {
             return new Error(ErrorCode.InvalidEmail);
         }
@@ -70,7 +71,7 @@ public class UserService(DbprojectContext context, IVerifyCodeService verifyCode
 
         var salt = PasswordUtil.GenerateSalt();
 
-        password = PasswordUtil.HashPassword(password, salt);
+        password = PasswordUtil.Hash(password, salt);
 
         await context.Database.ExecuteSqlAsync(
             $"""
@@ -86,24 +87,23 @@ public class UserService(DbprojectContext context, IVerifyCodeService verifyCode
                 """
             )
             .AsNoTracking()
-            .FirstOrDefaultAsync();
+            .ProjectTo<UserDto>(mapper.ConfigurationProvider)
+            .SingleAsync();
     }
 
-    public async Task<Result<User?, Error>> Update(int id, UserDto userDto)
+    public async Task<Result<UserDto, Error>> Update(int id, UserDto userDto)
     {
-        var init = "UPDATE \"user\" SET";
-        Type type = typeof(UserDto);
+        var init = """UPDATE "user" SET""";
+        var type = typeof(UserDto);
         var properties = type.GetProperties();
         var parameters = new List<NpgsqlParameter>();
         foreach (var v in properties)
         {
             var val = v.GetValue(userDto);
             var column = v.GetCustomAttribute<ColumnAttribute>();
-            if (val is not null && column is not null)
-            {
-                init += $" {column.Name} = @{column.Name},";
-                parameters.Add(new(column.Name, val));
-            }
+            if (val is null || column is null) continue;
+            init += $" {column.Name} = @{column.Name},";
+            parameters.Add(new(column.Name, val));
         }
 
         init = init[..^1];
@@ -122,10 +122,11 @@ public class UserService(DbprojectContext context, IVerifyCodeService verifyCode
                 """
             )
             .AsNoTracking()
-            .FirstOrDefaultAsync();
+            .ProjectTo<UserDto>(mapper.ConfigurationProvider)
+            .SingleAsync();
     }
 
-    public async Task<Result<User?, Error>> UpdatePassword(int id, string oldPwd, string newPwd)
+    public async Task<Result<UserDto, Error>> UpdatePassword(int id, int? code, string? oldPwd, string newPwd)
     {
         var user = await context.Database.SqlQuery<User>(
                 $"""
@@ -134,13 +135,23 @@ public class UserService(DbprojectContext context, IVerifyCodeService verifyCode
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
-        if (user is null || !PasswordUtil.VerifyPassword(oldPwd, user.Salt, user.Password))
+        if (user is null)
+        {
+            return new Error(ErrorCode.UserNotFound);
+        }
+
+        if (code is not null)
+        {
+            codeService.Verify(user.Email, (int)code);
+        }
+
+        if (!PasswordUtil.Verify(oldPwd!, user.Salt, user.Password))
         {
             return new Error(ErrorCode.InvalidCredentials);
         }
         
         user.Salt = PasswordUtil.GenerateSalt();
-        user.Password = PasswordUtil.HashPassword(newPwd, user.Salt);
+        user.Password = PasswordUtil.Hash(newPwd, user.Salt);
         
         await context.Database.ExecuteSqlAsync(
             $"""
@@ -148,6 +159,6 @@ public class UserService(DbprojectContext context, IVerifyCodeService verifyCode
             """
         );
 
-        return user;
+        return mapper.Map<UserDto>(user);
     }
 }

@@ -1,31 +1,29 @@
-using CovidLitSearch.Models.Enums;
+using System.ComponentModel.DataAnnotations;
+using CovidLitSearch.Models;
 using CovidLitSearch.Services.Interface;
+using CovidLitSearch.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CovidLitSearch.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/subscribes")]
 public class SubscribeController(ISubscribeService service) : ControllerBase
 {
     /// <summary>
     /// Subscribe to a journal
     /// </summary>
-    /// <param name="userId"></param>
     /// <param name="journalName"></param>
     /// <returns></returns>
-    [HttpPost]
-    public async Task<IActionResult> Subscribe(int userId, string journalName)
+    [HttpPost("{journalName}")]
+    public async Task<ActionResult<Subscribe>> Subscribe(string journalName)
     {
-        var result = await service.Subscribe(userId, journalName);
-        return result.Match<IActionResult>(
-            res => Ok(res),
-            error =>
-                error.Code switch
-                {
-                    ErrorCode.AlreadySubscribed => Conflict(error),
-                    _ => StatusCode(StatusCodes.Status500InternalServerError)
-                }
+        var result = await service.Subscribe(User.GetId(), journalName);
+        return result.Match<ActionResult<Subscribe>>(
+            res => Created($"/journal/{journalName}", res),
+            err => Conflict(err)
         );
     }
 
@@ -34,39 +32,24 @@ public class SubscribeController(ISubscribeService service) : ControllerBase
     /// </summary>
     /// <param name="page"></param>
     /// <param name="pageSize"></param>
-    /// <param name="userId"></param>
     /// <returns></returns>
     [HttpGet]
-    public async Task<IActionResult> GetSubscribes(int page, int pageSize, int userId)
+    public async Task<ActionResult<List<Subscribe>>> GetSubscribes([Required] int page, [Required] int pageSize)
     {
-        return (await service.GetSubscribes(page, pageSize, userId)).Match<IActionResult>(
-            res => Ok(res),
-            error =>
-                error.Code switch
-                {
-                    ErrorCode.NoData => NoContent(),
-                    _ => StatusCode(StatusCodes.Status500InternalServerError)
-                }
-        );
+        return (await service.GetSubscribes(page, pageSize, User.GetId())).Unwrap();
     }
 
     /// <summary>
     ///  Delete a subscribed journal
     /// </summary>
-    /// <param name="userId"></param>
     /// <param name="journalName"></param>
     /// <returns></returns>
-    [HttpDelete]
-    public async Task<IActionResult> DeleteSubscribe(int userId, string journalName)
+    [HttpDelete("{journalName}")]
+    public async Task<ActionResult> DeleteSubscribe(string journalName)
     {
-        return (await service.DeleteSubscribe(userId, journalName)).Match<IActionResult>(
-            _ => NoContent(),
-            error =>
-                error.Code switch
-                {
-                    ErrorCode.InvalidCredentials => BadRequest(error),
-                    _ => StatusCode(StatusCodes.Status500InternalServerError)
-                }
+        return (await service.DeleteSubscribe(User.GetId(), journalName)).Match<ActionResult>(
+            NoContent,
+            BadRequest
         );
     }
 }
