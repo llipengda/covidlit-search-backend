@@ -17,7 +17,7 @@ public class SubscribeService(DbprojectContext context) : ISubscribeService
                 """
             )
             .AsNoTracking()
-            .FirstOrDefaultAsync();
+            .SingleOrDefaultAsync();
 
         if (subscribe is not null)
         {
@@ -79,7 +79,7 @@ public class SubscribeService(DbprojectContext context) : ISubscribeService
                 """
             )
             .AsNoTracking()
-            .FirstOrDefaultAsync();
+            .SingleOrDefaultAsync();
 
         if (subscribe is null)
         {

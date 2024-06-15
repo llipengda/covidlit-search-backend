@@ -4,9 +4,9 @@ using CovidLitSearch.Models.Common;
 
 namespace CovidLitSearch.Utilities;
 
-public class EmailUtil
+public static class EmailUtil
 {
-    public static void SendEmail(string email, string subject, string body)
+    public static void SendEmail(string email, string subject, string body, ILogger logger)
     {
         var client = new SmtpClient
         {
@@ -22,7 +22,7 @@ public class EmailUtil
 
         var message = new MailMessage
         {
-            From = new MailAddress(AppSettings.Email.Username),
+            From = new MailAddress(AppSettings.Email.Username, "CovidLit Search"),
             Subject = subject,
             Body = body,
             IsBodyHtml = true,
@@ -30,6 +30,18 @@ public class EmailUtil
 
         message.To.Add(email);
 
-        client.SendAsync(message, Guid.NewGuid().ToString());
+        client.SendCompleted += (_, e) =>
+        {
+            if (e.Error is null)
+            {
+                logger.LogInformation("Successfully sent email to [{email}]", email);
+            }
+            else
+            {
+                logger.LogError(e.Error, "Failed to send email to [{email}]", email);
+            }
+        };
+
+        client.SendAsync(message, email);
     }
 }

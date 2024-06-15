@@ -20,8 +20,8 @@ public class UserController(IUserService service) : ControllerBase
     /// <returns></returns>
     [HttpPost("login")]
     public async Task<ActionResult<LoginDto>> Login(
-        [Required] string email,
-        [Required] string password
+        [Required][FromForm] string email,
+        [Required][FromForm] string password
     )
     {
         return (await service.Login(email, password)).Match<ActionResult<LoginDto>>(
@@ -39,9 +39,9 @@ public class UserController(IUserService service) : ControllerBase
     /// <returns></returns>
     [HttpPost("signup")]
     public async Task<ActionResult<UserDto>> Signup(
-        [Required] string email,
-        [Required] string password,
-        [Required] int code
+        [Required][FromForm] string email,
+        [Required][FromForm] string password,
+        [Required][FromForm] int code
     )
     {
         return (await service.Signup(email, password, code)).Match<ActionResult<UserDto>>(
@@ -51,7 +51,8 @@ public class UserController(IUserService service) : ControllerBase
                 {
                     ErrorCode.EmailAlreadyExists => Conflict(error),
                     ErrorCode.InvalidEmail => BadRequest(error),
-                    _ => StatusCode(StatusCodes.Status500InternalServerError)
+                    ErrorCode.InvalidVerificationCode => BadRequest(error),
+                    _ => throw new Exception(error.ToString())
                 }
         );
     }
@@ -82,9 +83,9 @@ public class UserController(IUserService service) : ControllerBase
     [HttpPut("update-password")]
     [Authorize]
     public async Task<ActionResult<UserDto>> UpdatePassword(
-        int? code,
-        string? oldPwd,
-        [Required] string newPwd
+        [FromForm] int? code,
+        [FromForm] string? oldPwd,
+        [Required][FromForm] string newPwd
     )
     {
         if (code is null && oldPwd is not null)

@@ -26,7 +26,7 @@ public class UserService(DbprojectContext context, ICodeService codeService, IMa
                 """
             )
             .AsNoTracking()
-            .FirstOrDefaultAsync();
+            .SingleOrDefaultAsync();
 
         if (user is null || !PasswordUtil.Verify(password, user.Salt, user.Password))
         {
@@ -46,7 +46,7 @@ public class UserService(DbprojectContext context, ICodeService codeService, IMa
     {
         if (!codeService.Verify(email, code).Unwrap())
         {
-            return new Error(ErrorCode.InvalidVerifyCode);
+            return new Error(ErrorCode.InvalidVerificationCode);
         }
         if (!MailAddress.TryCreate(email, out _))
         {
@@ -60,9 +60,9 @@ public class UserService(DbprojectContext context, ICodeService codeService, IMa
                 """
             )
             .AsNoTracking()
-            .FirstOrDefaultAsync();
+            .SingleOrDefaultAsync();
 
-        if (data != null && data.Email == email)
+        if (data is not null && data.Email == email)
         {
             return new Error(ErrorCode.EmailAlreadyExists);
         }
@@ -133,7 +133,7 @@ public class UserService(DbprojectContext context, ICodeService codeService, IMa
                  SELECT * FROM "user" WHERE id = {id}
                  """)
             .AsNoTracking()
-            .FirstOrDefaultAsync();
+            .SingleOrDefaultAsync();
 
         if (user is null)
         {

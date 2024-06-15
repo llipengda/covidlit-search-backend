@@ -18,7 +18,7 @@ public class CollectService(DbprojectContext context) : ICollectService
                 """
             )
             .AsNoTracking()
-            .FirstOrDefaultAsync();
+            .SingleOrDefaultAsync();
 
         if (collect is not null)
         {
@@ -81,7 +81,7 @@ public class CollectService(DbprojectContext context) : ICollectService
                 """
             )
             .AsNoTracking()
-            .FirstOrDefaultAsync();
+            .SingleOrDefaultAsync();
 
         if (collect is null)
         {
