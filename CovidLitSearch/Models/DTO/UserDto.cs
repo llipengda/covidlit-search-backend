@@ -1,12 +1,11 @@
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CovidLitSearch.Models.DTO;
 
 public class UserDto
 {
-    [Column("nickname")]
-    public string? Nickname { get; set; } 
+    [Column("nickname")] 
+    public string? Nickname { get; set; }
 
     [Column("avatar")]
     public string? Avatar { get; set; }

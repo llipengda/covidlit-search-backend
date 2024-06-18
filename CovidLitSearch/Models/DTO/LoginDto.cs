@@ -1,6 +1,6 @@
 namespace CovidLitSearch.Models.DTO;
 
-public class LoginDto
+public class LoginDto : UserDto
 {
     public string Email { get; set; } = null!;
 

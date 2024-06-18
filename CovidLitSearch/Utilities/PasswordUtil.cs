@@ -2,7 +2,7 @@
 
 namespace CovidLitSearch.Utilities;
 
-public class PasswordUtil
+public static class PasswordUtil
 {
     public static string GenerateSalt()
     {
@@ -11,21 +11,21 @@ public class PasswordUtil
         return Convert.ToBase64String(saltBytes);
     }
 
-    public static string HashPassword(string password, string salt)
+    public static string Hash(string password, string salt)
     {
-        byte[] passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
-        byte[] saltBytes = Convert.FromBase64String(salt);
+        var passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
+        var saltBytes = Convert.FromBase64String(salt);
 
-        byte[] combinedBytes = new byte[passwordBytes.Length + saltBytes.Length];
+        var combinedBytes = new byte[passwordBytes.Length + saltBytes.Length];
         Buffer.BlockCopy(passwordBytes, 0, combinedBytes, 0, passwordBytes.Length);
         Buffer.BlockCopy(saltBytes, 0, combinedBytes, passwordBytes.Length, saltBytes.Length);
-        byte[] hashBytes = SHA256.HashData(combinedBytes);
+        var hashBytes = SHA256.HashData(combinedBytes);
         return Convert.ToBase64String(hashBytes);
     }
 
-    public static bool VerifyPassword(string password, string salt, string hashedPassword)
+    public static bool Verify(string password, string salt, string hashedPassword)
     {
-        string hashedInput = HashPassword(password, salt);
+        var hashedInput = Hash(password, salt);
         return hashedInput == hashedPassword;
     }
 }

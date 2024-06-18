@@ -8,7 +8,7 @@ namespace CovidLitSearch.Controllers;
 [Route("api/test")]
 public class TestController : ControllerBase
 {
-    [HttpGet("noauth")]
+    [HttpGet("no-auth")]
     public IActionResult NoAuth()
     {
         return Ok();
@@ -28,7 +28,7 @@ public class TestController : ControllerBase
         return Ok();
     }
 
-    [HttpGet("userId")]
+    [HttpGet("userid")]
     [Authorize]
     public ActionResult<int> UserId()
     {

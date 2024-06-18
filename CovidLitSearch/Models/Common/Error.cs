@@ -19,4 +19,9 @@ public class Error
         Code = code;
         Message = message;
     }
+
+    public override string ToString()
+    {
+        return $"Error {Code}: {Message}";
+    }
 }

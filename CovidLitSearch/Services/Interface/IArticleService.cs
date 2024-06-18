@@ -14,17 +14,16 @@ public interface IArticleService
         ArticleSearchBy? searchBy
     );
 
-    Task<Result<ArticleDto?, Error>> GetArticleById(string id, int userId);
+    Task<Result<ArticleDto, Error>> GetArticleById(string id, int? userId);
 
     Task<Result<List<ArticleDto>, Error>> GetArticlesByResearch(
         int page,
         int pageSize,
-        string? studyType, 
+        string? studyType,
         string? addressedPopulation,
         string? challenge,
         string? focus
     );
-    
+
     Task<Result<List<CiteDto>, Error>> GetCites(int page, int pageSize, string id);
-    
 }

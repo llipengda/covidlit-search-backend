@@ -5,9 +5,9 @@ namespace CovidLitSearch.Services.Interface;
 
 public interface ISubscribeService
 {
-    Task<Result<Subscribe?, Error>> Subscribe(int userId, string journalName);
+    Task<Result<Subscribe, Error>> Subscribe(int userId, string journalName);
     
-    Task<Result<List<Subscribe>?, Error>> GetSubscribes(int page, int pageSize, int userId);
+    Task<Result<List<Subscribe>, Error>> GetSubscribes(int page, int pageSize, int userId);
     
-    Task<Result<Unit, Error>> DeleteSubscribe(int userId, string journalName);
+    Task<Result<Error>> DeleteSubscribe(int userId, string journalName);
 }

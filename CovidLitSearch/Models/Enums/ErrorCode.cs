@@ -6,8 +6,10 @@ public enum ErrorCode
     EmailAlreadyExists,
     InvalidEmail,
     AlreadyCollected,
-    NoData,
+    NotFound,
     AlreadySubscribed,
     CodeAlreadySent,
-    InvalidVerifyCode
+    InvalidVerifyCode,
+    NoSuchElement,
+    UserNotFound
 }
