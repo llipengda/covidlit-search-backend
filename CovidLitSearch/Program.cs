@@ -2,6 +2,7 @@ using CovidLitSearch.Models;
 using CovidLitSearch.Models.Common;
 using CovidLitSearch.Profiles;
 using CovidLitSearch.Utilities;
+using CovidLitSearch.Utilities.Filters;
 using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 AppSettings.Init(builder.Configuration);
 
 builder
-    .Services.AddControllers()
+    .Services.AddControllers(options => options.Filters.Add<LoggingFilter>())
     .AddNewtonsoftJson(options =>
         options.SerializerSettings.ReferenceLoopHandling = Newtonsoft
             .Json
