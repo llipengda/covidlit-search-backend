@@ -18,22 +18,22 @@ public class HistoryService(DbprojectContext context) : IHistoryService
         var data = await context
             .Database.SqlQuery<HistoryDto>(
                 $"""
-                SELECT
-                  history.*,
-                  title,
-                  authors,
-                  abstract,
-                  journal_name 
-                FROM
-                  "history"
-                  JOIN article ON history.article_id = article."id"
-                  JOIN publish ON publish.article_id = history.article_id 
-                WHERE
-                  "user_id" = {userId}
-                ORDER BY
-                  "time" DESC
-                LIMIT {pageSize} OFFSET {(page - 1) * pageSize} 
-                """
+                 SELECT
+                   history.*,
+                   title,
+                   authors,
+                   abstract,
+                   journal_name 
+                 FROM
+                   "history"
+                   JOIN article ON history.article_id = article."id"
+                   JOIN publish ON publish.article_id = history.article_id 
+                 WHERE
+                   "user_id" = {userId}
+                 ORDER BY
+                   "time" DESC
+                 LIMIT {pageSize} OFFSET {(page - 1) * pageSize} 
+                 """
             )
             .AsNoTracking()
             .ToListAsync();

@@ -22,8 +22,8 @@ public class UserService(DbprojectContext context, ICodeService codeService, IMa
         var user = await context
             .Database.SqlQuery<User>(
                 $"""
-                SELECT * FROM "user" WHERE email = {email}
-                """
+                 SELECT * FROM "user" WHERE email = {email}
+                 """
             )
             .AsNoTracking()
             .SingleOrDefaultAsync();
@@ -48,6 +48,7 @@ public class UserService(DbprojectContext context, ICodeService codeService, IMa
         {
             return new Error(ErrorCode.InvalidVerificationCode);
         }
+
         if (!MailAddress.TryCreate(email, out _))
         {
             return new Error(ErrorCode.InvalidEmail);
@@ -56,8 +57,8 @@ public class UserService(DbprojectContext context, ICodeService codeService, IMa
         var data = await context
             .Database.SqlQuery<User>(
                 $"""
-                SELECT * FROM "user" WHERE email = {email}
-                """
+                 SELECT * FROM "user" WHERE email = {email}
+                 """
             )
             .AsNoTracking()
             .SingleOrDefaultAsync();
@@ -75,16 +76,16 @@ public class UserService(DbprojectContext context, ICodeService codeService, IMa
 
         await context.Database.ExecuteSqlAsync(
             $"""
-            INSERT INTO "user" ("email", "password", "salt", "nickname") 
-            VALUES ({email}, {password}, {salt}, {nickName})
-            """
+             INSERT INTO "user" ("email", "password", "salt", "nickname") 
+             VALUES ({email}, {password}, {salt}, {nickName})
+             """
         );
 
         return await context
             .Database.SqlQuery<User>(
                 $"""
-                SELECT * FROM "user" WHERE email = {email}
-                """
+                 SELECT * FROM "user" WHERE email = {email}
+                 """
             )
             .AsNoTracking()
             .ProjectTo<UserDto>(mapper.ConfigurationProvider)
@@ -114,12 +115,12 @@ public class UserService(DbprojectContext context, ICodeService codeService, IMa
         {
             await context.Database.ExecuteSqlRawAsync(init, parameters.ToArray());
         }
-        
+
         return await context
             .Database.SqlQuery<User>(
                 $"""
-                SELECT * FROM "user" WHERE id = {id}
-                """
+                 SELECT * FROM "user" WHERE id = {id}
+                 """
             )
             .AsNoTracking()
             .ProjectTo<UserDto>(mapper.ConfigurationProvider)
@@ -149,14 +150,14 @@ public class UserService(DbprojectContext context, ICodeService codeService, IMa
         {
             return new Error(ErrorCode.InvalidCredentials);
         }
-        
+
         user.Salt = PasswordUtil.GenerateSalt();
         user.Password = PasswordUtil.Hash(newPwd, user.Salt);
-        
+
         await context.Database.ExecuteSqlAsync(
             $"""
-            UPDATE "user" SET password = {user.Password}, salt = {user.Salt} WHERE id = {id}
-            """
+             UPDATE "user" SET password = {user.Password}, salt = {user.Salt} WHERE id = {id}
+             """
         );
 
         return mapper.Map<UserDto>(user);

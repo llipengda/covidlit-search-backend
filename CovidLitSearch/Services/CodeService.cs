@@ -14,35 +14,36 @@ public class CodeService(IMemoryCache cache, ILogger<CodeService> logger) : ICod
         {
             return new Error(ErrorCode.CodeAlreadySent);
         }
+
         var code = GenerateCode();
         var body = $"""
-            <!DOCTYPE html>
-            <html>
-              <head>
-                <title>Verification Code</title>
-              </head>
-              <body style="font-family: Arial; color: #333333">
-                <div
-                  style="
-                    max-width: 600px;
-                    margin: 0 auto;
-                    background-color: #ffffff;
-                    padding: 20px;
-                  "
-                >
-                  <h2 style="color: #b70031">Hello，<span style="font-size: 16px;">{email}</span></h2>
-                  <p>
-                    Your verification code is：
-                    <span style="font-size: 24px; color: #b70031; font-weight: 700">{code}</span>
-                  </p>
-                  <p>It will expire in 5 minutes.</p>
-                  <p style="font-size: 14px; color: #888888; margin-top: 20px">
-                    CovidLit Search
-                  </p>
-                </div>
-              </body>
-            </html>
-            """;
+                    <!DOCTYPE html>
+                    <html>
+                      <head>
+                        <title>Verification Code</title>
+                      </head>
+                      <body style="font-family: Arial; color: #333333">
+                        <div
+                          style="
+                            max-width: 600px;
+                            margin: 0 auto;
+                            background-color: #ffffff;
+                            padding: 20px;
+                          "
+                        >
+                          <h2 style="color: #b70031">Hello，<span style="font-size: 16px;">{email}</span></h2>
+                          <p>
+                            Your verification code is：
+                            <span style="font-size: 24px; color: #b70031; font-weight: 700">{code}</span>
+                          </p>
+                          <p>It will expire in 5 minutes.</p>
+                          <p style="font-size: 14px; color: #888888; margin-top: 20px">
+                            CovidLit Search
+                          </p>
+                        </div>
+                      </body>
+                    </html>
+                    """;
         EmailUtil.SendEmail(email, "Verification Code", body, logger);
         cache.Set(
             email,
@@ -59,6 +60,7 @@ public class CodeService(IMemoryCache cache, ILogger<CodeService> logger) : ICod
         {
             cache.Remove(email);
         }
+
         return code == storedCode;
     }
 
