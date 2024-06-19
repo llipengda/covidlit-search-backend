@@ -5,6 +5,14 @@ USER app
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
+ENV CONNECTION_STRING=""
+ENV JWT_ISSUER="CovidLitSearch"
+ENV JWT_AUDIENCE="User"
+ENV JWT_SECRET=""
+ENV SMTP_HOST=""
+ENV SMTP_PORT=""
+ENV SMTP_USERNAME=""
+ENV SMTP_PASSWORD=""
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
@@ -22,4 +30,4 @@ RUN dotnet publish "./CovidLitSearch.csproj" -c $BUILD_CONFIGURATION -o /app/pub
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "CovidLitSearch.dll"]
+ENTRYPOINT ["dotnet", "CovidLitSearch.dll", "ConnectionStrings:DBProject=$CONNECTION_STRING", "Jwt:Issuer=$JWT_ISSUER", "Jwt:Audience=$JWT_AUDIENCE", "Jwt:Secret=$JWT_SECRET", "Email:Host=$SMTP_HOST", "Email:Port=$SMTP_PORT", "Email:Username=$SMTP_USERNAME", "Email:Password=$SMTP_PASSWORD"]
