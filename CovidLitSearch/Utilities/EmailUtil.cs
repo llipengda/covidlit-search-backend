@@ -6,7 +6,16 @@ namespace CovidLitSearch.Utilities;
 
 public static class EmailUtil
 {
-    public static void SendEmail(string email, string subject, string body, ILogger logger)
+    private static readonly ILogger _logger;
+
+    static EmailUtil()
+    {
+        _logger = LoggerFactory
+            .Create(options => options.AddConsole())
+            .CreateLogger(typeof(EmailUtil));
+    }
+    
+    public static void SendEmail(string email, string subject, string body)
     {
         var client = new SmtpClient
         {
@@ -34,11 +43,11 @@ public static class EmailUtil
         {
             if (e.Error is null)
             {
-                logger.LogInformation("Successfully sent email to [{email}]", email);
+                _logger.LogInformation("Successfully sent email to [{email}]", email);
             }
             else
             {
-                logger.LogError(e.Error, "Failed to send email to [{email}]", email);
+                _logger.LogError(e.Error, "Failed to send email to [{email}]", email);
             }
         };
 
