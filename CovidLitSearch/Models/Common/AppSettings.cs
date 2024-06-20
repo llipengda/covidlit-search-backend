@@ -28,6 +28,7 @@ public static class AppSettings
 
     public static string ConnectionString { get; set; } = null!;
 
+
     public static void Init(IConfiguration configuration)
     {
         configuration.GetSection("Jwt").Bind(Jwt);
