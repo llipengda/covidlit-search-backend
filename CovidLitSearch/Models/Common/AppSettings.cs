@@ -20,39 +20,63 @@ public class Smtp
     public string Password { get; set; } = null!;
 }
 
+public class ConnectionStrings
+{
+    public string DBProject { get; set; } = null!;
+}
+
 public static class AppSettings
 {
     public static Jwt Jwt { get; set; } = new();
 
     public static Smtp Smtp { get; set; } = new();
 
-    public static string ConnectionString { get; set; } = null!;
+    public static ConnectionStrings ConnectionStrings { get; set; } = new();
 
+    private static ILogger _logger = LoggerFactory
+        .Create(config => config.AddConsole())
+        .CreateLogger(typeof(AppSettings));
+
+    private static bool _hasError = false;
 
     public static void Init(IConfiguration configuration)
     {
         configuration.GetSection("Jwt").Bind(Jwt);
         configuration.GetSection("Smtp").Bind(Smtp);
-        ConnectionString = configuration.GetConnectionString("DBProject")!;
+        configuration.GetSection("ConnectionStrings").Bind(ConnectionStrings);
 
-        var logger = LoggerFactory
-            .Create(config => config.AddConsole())
-            .CreateLogger(typeof(AppSettings));
-        try
+        Validate(Jwt.SecretKey, "Jwt:SecretKey");
+        Validate(Smtp.Host, "Smtp:Host");
+        Validate(Smtp.Port, "Smtp:Port");
+        Validate(Smtp.Username, "Smtp:Username");
+        Validate(Smtp.Password, "Smtp:Password");
+        Validate(ConnectionStrings.DBProject, "ConnectionStrings:DBProject");
+
+        if (!_hasError) return;
+
+        _logger.LogError("AppSettings is not configured properly. If you are using Docker, use -e to set environment variables.");
+        Environment.Exit(1);
+    }
+
+    private static void Validate(string value, string name)
+    {
+        if (!string.IsNullOrWhiteSpace(value))
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(Jwt.SecretKey);
-            ArgumentException.ThrowIfNullOrWhiteSpace(Smtp.Host);
-            ArgumentException.ThrowIfNullOrWhiteSpace(Smtp.Username);
-            ArgumentException.ThrowIfNullOrWhiteSpace(Smtp.Password);
-            ArgumentException.ThrowIfNullOrWhiteSpace(ConnectionString);
-            if (Smtp.Port < 0)
-            {
-                throw new ArgumentNullException(nameof(Smtp.Port));
-            }
+            return;
         }
-        catch (Exception e)
+
+        _hasError = true;
+        _logger.LogError("{name} is not set properly", name);
+    }
+
+    private static void Validate(int value, string name)
+    {
+        if (value > 0)
         {
-            logger.LogError(e, "AppSettings is not configured properly. If you are using Docker, use -e to set environment variables.");
+            return;
         }
+
+        _hasError = true;
+        _logger.LogError("{name} is not set properly", name);
     }
 }
