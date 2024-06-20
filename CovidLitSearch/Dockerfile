@@ -9,7 +9,7 @@ EXPOSE 8081
 ENV CONNECTIONSTRINGS_DBPROJECT=""
 ENV JWT_ISSUER="CovidLitSearch"
 ENV JWT_AUDIENCE="User"
-ENV JWT_SECRET=""
+ENV JWT_SECRETKEY=""
 ENV SMTP_HOST=""
 ENV SMTP_PORT=-1
 ENV SMTP_USERNAME=""
@@ -31,4 +31,4 @@ RUN dotnet publish "./CovidLitSearch.csproj" -c $BUILD_CONFIGURATION -o /app/pub
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["sh", "-c", "dotnet CovidLitSearch.dll ConnectionStrings:DBProject=$CONNECTIONSTRINGS_DBPROJECT Jwt:Issuer=$JWT_ISSUER Jwt:Audience=$JWT_AUDIENCE Jwt:Secret=$JWT_SECRET Smtp:Host=$SMTP_HOST Smtp:Port=$SMTP_PORT Smtp:Username=$SMTP_USERNAME Smtp:Password=$SMTP_PASSWORD"]
+ENTRYPOINT ["sh", "-c", "dotnet CovidLitSearch.dll ConnectionStrings:DBProject=$CONNECTIONSTRINGS_DBPROJECT Jwt:Issuer=$JWT_ISSUER Jwt:Audience=$JWT_AUDIENCE Jwt:Secret=$JWT_SECRETKEY Smtp:Host=$SMTP_HOST Smtp:Port=$SMTP_PORT Smtp:Username=$SMTP_USERNAME Smtp:Password=$SMTP_PASSWORD"]
