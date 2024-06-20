@@ -26,9 +26,33 @@ public static class AppSettings
 
     public static Smtp Smtp { get; set; } = new();
 
+    public static string ConnectionString { get; set; } = null!;
+
+
     public static void Init(IConfiguration configuration)
     {
         configuration.GetSection("Jwt").Bind(Jwt);
         configuration.GetSection("Smtp").Bind(Smtp);
+        ConnectionString = configuration.GetConnectionString("DBProject")!;
+
+        var logger = LoggerFactory
+            .Create(config => config.AddConsole())
+            .CreateLogger(typeof(AppSettings));
+        try
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(Jwt.SecretKey);
+            ArgumentException.ThrowIfNullOrWhiteSpace(Smtp.Host);
+            ArgumentException.ThrowIfNullOrWhiteSpace(Smtp.Username);
+            ArgumentException.ThrowIfNullOrWhiteSpace(Smtp.Password);
+            ArgumentException.ThrowIfNullOrWhiteSpace(ConnectionString);
+            if (Smtp.Port < 0)
+            {
+                throw new ArgumentNullException(nameof(Smtp.Port));
+            }
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "AppSettings is not configured properly. If you are using Docker, use -e to set environment variables.");
+        }
     }
 }
