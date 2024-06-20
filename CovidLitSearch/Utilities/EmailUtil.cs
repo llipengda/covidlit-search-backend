@@ -10,19 +10,19 @@ public static class EmailUtil
     {
         var client = new SmtpClient
         {
-            Host = AppSettings.Email.Host,
-            Port = AppSettings.Email.Port,
+            Host = AppSettings.Smtp.Host,
+            Port = AppSettings.Smtp.Port,
             EnableSsl = true,
             UseDefaultCredentials = false,
             Credentials = new NetworkCredential(
-                AppSettings.Email.Username,
-                AppSettings.Email.Password
+                AppSettings.Smtp.Username,
+                AppSettings.Smtp.Password
             )
         };
 
         var message = new MailMessage
         {
-            From = new MailAddress(AppSettings.Email.Username, "CovidLit Search"),
+            From = new MailAddress(AppSettings.Smtp.Username, "CovidLit Search"),
             Subject = subject,
             Body = body,
             IsBodyHtml = true,

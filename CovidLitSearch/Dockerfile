@@ -10,7 +10,7 @@ ENV JWT_ISSUER="CovidLitSearch"
 ENV JWT_AUDIENCE="User"
 ENV JWT_SECRET=""
 ENV SMTP_HOST=""
-ENV SMTP_PORT=""
+ENV SMTP_PORT=0
 ENV SMTP_USERNAME=""
 ENV SMTP_PASSWORD=""
 
@@ -30,4 +30,4 @@ RUN dotnet publish "./CovidLitSearch.csproj" -c $BUILD_CONFIGURATION -o /app/pub
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "CovidLitSearch.dll", "ConnectionStrings:DBProject=$CONNECTION_STRING", "Jwt:Issuer=$JWT_ISSUER", "Jwt:Audience=$JWT_AUDIENCE", "Jwt:Secret=$JWT_SECRET", "Email:Host=$SMTP_HOST", "Email:Port=$SMTP_PORT", "Email:Username=$SMTP_USERNAME", "Email:Password=$SMTP_PASSWORD"]
+ENTRYPOINT ["sh", "-c", "dotnet CovidLitSearch.dll ConnectionStrings:DBProject=$CONNECTION_STRING Jwt:Issuer=$JWT_ISSUER Jwt:Audience=$JWT_AUDIENCE Jwt:Secret=$JWT_SECRET Smtp:Host=$SMTP_HOST Smtp:Port=$SMTP_PORT Smtp:Username=$SMTP_USERNAME Smtp:Password=$SMTP_PASSWORD"]
