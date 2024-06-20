@@ -6,7 +6,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace CovidLitSearch.Services;
 
-public class CodeService(IMemoryCache cache, ILogger<CodeService> logger) : ICodeService
+public class CodeService(IMemoryCache cache) : ICodeService
 {
     public Result<Error> Send(string email)
     {
@@ -44,7 +44,7 @@ public class CodeService(IMemoryCache cache, ILogger<CodeService> logger) : ICod
                       </body>
                     </html>
                     """;
-        EmailUtil.SendEmail(email, "Verification Code", body, logger);
+        EmailUtil.SendEmail(email, "Verification Code", body);
         cache.Set(
             email,
             code,
