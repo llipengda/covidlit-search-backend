@@ -9,7 +9,7 @@ public class Jwt
     public string SecretKey { get; set; } = null!;
 }
 
-public class Email
+public class Smtp
 {
     public string Host { get; set; } = null!;
 
@@ -24,11 +24,11 @@ public static class AppSettings
 {
     public static Jwt Jwt { get; set; } = new();
 
-    public static Email Email { get; set; } = new();
+    public static Smtp Smtp { get; set; } = new();
 
     public static void Init(IConfiguration configuration)
     {
         configuration.GetSection("Jwt").Bind(Jwt);
-        configuration.GetSection("Email").Bind(Email);
+        configuration.GetSection("Smtp").Bind(Smtp);
     }
 }
