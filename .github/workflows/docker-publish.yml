@@ -82,3 +82,23 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:master
           cache-to: type=inline
+  
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /home/ubuntu/dbp
+            sudo docker pull pdli/covidlit-search:master
+            sudo docker stop covidlit-search
+            sudo docker rm covidlit-search
+            sudo docker run --name covidlit-search -d -p 32768:8080 --env-file env pdli/covidlit-search:master
