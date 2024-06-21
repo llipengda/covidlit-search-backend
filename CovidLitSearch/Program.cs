@@ -26,6 +26,19 @@ builder.Services.AddSwaggerGen(options => options.SetupSwagger());
 
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
+builder.Services.AddCors(options => options.AddDefaultPolicy(
+    policy =>
+    {
+        if (builder.Configuration["Cors:Origins"] is { } origins && !string.IsNullOrEmpty(origins))
+        {
+            policy.WithOrigins(origins.Split(",")).AllowAnyMethod().AllowAnyHeader();
+        }
+        else
+        {
+            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        }
+    }));
+
 builder.Services.AddMemoryCache();
 
 builder.Services.AddDbContext<DbprojectContext>();
@@ -48,5 +61,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.UseRewriter(new RewriteOptions().AddRedirect("^$", "swagger"));
+
+app.UseCors();
 
 app.Run();

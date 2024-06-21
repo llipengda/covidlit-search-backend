@@ -14,6 +14,7 @@ ENV SMTP_HOST=""
 ENV SMTP_PORT=-1
 ENV SMTP_USERNAME=""
 ENV SMTP_PASSWORD=""
+ENV CORS_ORIGINS=""
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
@@ -31,4 +32,4 @@ RUN dotnet publish "./CovidLitSearch.csproj" -c $BUILD_CONFIGURATION -o /app/pub
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["sh", "-c", "dotnet CovidLitSearch.dll ConnectionStrings:DBProject=$CONNECTIONSTRINGS_DBPROJECT Jwt:Issuer=$JWT_ISSUER Jwt:Audience=$JWT_AUDIENCE Jwt:SecretKey=$JWT_SECRETKEY Smtp:Host=$SMTP_HOST Smtp:Port=$SMTP_PORT Smtp:Username=$SMTP_USERNAME Smtp:Password=$SMTP_PASSWORD"]
+ENTRYPOINT ["sh", "-c", "dotnet CovidLitSearch.dll ConnectionStrings:DBProject=$CONNECTIONSTRINGS_DBPROJECT Jwt:Issuer=$JWT_ISSUER Jwt:Audience=$JWT_AUDIENCE Jwt:SecretKey=$JWT_SECRETKEY Smtp:Host=$SMTP_HOST Smtp:Port=$SMTP_PORT Smtp:Username=$SMTP_USERNAME Smtp:Password=$SMTP_PASSWORD Cors:Origins=$CORS_ORIGINS"]

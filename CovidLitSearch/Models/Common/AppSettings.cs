@@ -25,6 +25,11 @@ public class ConnectionStrings
     public string DBProject { get; set; } = null!;
 }
 
+public class Cors
+{
+    public string Origins { get; set; } = null!;
+}
+
 public static class AppSettings
 {
     public static Jwt Jwt { get; set; } = new();
@@ -32,6 +37,8 @@ public static class AppSettings
     public static Smtp Smtp { get; set; } = new();
 
     public static ConnectionStrings ConnectionStrings { get; set; } = new();
+    
+    public static Cors Cors { get; set; } = new();
 
     private static ILogger _logger = LoggerFactory
         .Create(config => config.AddConsole())
@@ -44,6 +51,7 @@ public static class AppSettings
         configuration.GetSection("Jwt").Bind(Jwt);
         configuration.GetSection("Smtp").Bind(Smtp);
         configuration.GetSection("ConnectionStrings").Bind(ConnectionStrings);
+        configuration.GetSection("Cors").Bind(Cors);
 
         Validate(Jwt.SecretKey, "Jwt:SecretKey");
         Validate(Smtp.Host, "Smtp:Host");
@@ -51,6 +59,11 @@ public static class AppSettings
         Validate(Smtp.Username, "Smtp:Username");
         Validate(Smtp.Password, "Smtp:Password");
         Validate(ConnectionStrings.DBProject, "ConnectionStrings:DBProject");
+
+        if (string.IsNullOrEmpty(Cors.Origins))
+        {
+            _logger.LogWarning("Cors:Origins is not set. All origins are allowed.");
+        }
 
         if (!_hasError) return;
 
