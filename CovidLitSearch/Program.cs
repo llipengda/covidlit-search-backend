@@ -55,13 +55,12 @@ if (app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+app.UseCors();
 
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.UseRewriter(new RewriteOptions().AddRedirect("^$", "swagger"));
-
-app.UseCors();
 
 app.Run();
