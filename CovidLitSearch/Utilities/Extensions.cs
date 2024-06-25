@@ -4,6 +4,7 @@ using CovidLitSearch.Services;
 using CovidLitSearch.Services.Interface;
 using CovidLitSearch.Utilities.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -14,6 +15,7 @@ public static class Extensions
 {
     public static void AddServices(this IServiceCollection services)
     {
+        services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationResultHandler>();
         services.AddScoped<IArticleService, ArticleService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthorService, AuthorService>();
@@ -28,22 +30,7 @@ public static class Extensions
     {
         option.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "CovidLitSearch.xml"));
         option.DocumentFilter<EnumDocumentFilter>();
-        option.AddSecurityRequirement(
-            new OpenApiSecurityRequirement
-            {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Id = "Bearer",
-                            Type = ReferenceType.SecurityScheme
-                        }
-                    },
-                    new List<string>()
-                }
-            }
-        );
+        option.OperationFilter<OpenApiOperationFilter>();
         option.AddSecurityDefinition(
             "Bearer",
             new OpenApiSecurityScheme

@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace CovidLitSearch.Controllers;
 
 [ApiController]
-[Authorize]
 [Route("api/histories")]
 public class HistoryController(IHistoryService service) : ControllerBase
 {
@@ -19,6 +18,7 @@ public class HistoryController(IHistoryService service) : ControllerBase
     /// <param name="pageSize"></param>
     /// <returns></returns>
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<List<HistoryDto>>> GetHistory(
         [Required] int page,
         [Required] int pageSize

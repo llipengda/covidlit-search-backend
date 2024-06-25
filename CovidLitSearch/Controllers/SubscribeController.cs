@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace CovidLitSearch.Controllers;
 
 [ApiController]
-[Authorize]
 [Route("api/subscribes")]
 public class SubscribeController(ISubscribeService service) : ControllerBase
 {
@@ -20,6 +19,7 @@ public class SubscribeController(ISubscribeService service) : ControllerBase
     /// <response code="409">Conflict</response>
     /// <returns></returns>
     [HttpPost("{journalName}")]
+    [Authorize]
     public async Task<ActionResult<Subscribe>> Subscribe(string journalName)
     {
         var result = await service.Subscribe(User.GetId(), journalName);
@@ -36,6 +36,7 @@ public class SubscribeController(ISubscribeService service) : ControllerBase
     /// <param name="pageSize"></param>
     /// <returns></returns>
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<List<Subscribe>>> GetSubscribes([Required] int page, [Required] int pageSize)
     {
         return (await service.GetSubscribes(page, pageSize, User.GetId())).Unwrap();
@@ -49,6 +50,7 @@ public class SubscribeController(ISubscribeService service) : ControllerBase
     /// <response code="400">Bad Request</response>
     /// <returns></returns>
     [HttpDelete("{journalName}")]
+    [Authorize]
     public async Task<ActionResult> DeleteSubscribe(string journalName)
     {
         return (await service.DeleteSubscribe(User.GetId(), journalName)).Match<ActionResult>(

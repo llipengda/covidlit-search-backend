@@ -10,7 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 AppSettings.Init(builder.Configuration);
 
 builder
-    .Services.AddControllers(options => options.Filters.Add<LoggingFilter>())
+    .Services.AddControllers(options =>
+    {
+        options.Filters.Add<LoggingFilter>();
+        options.Filters.Add<ExceptionFilter>();
+    })
     .AddNewtonsoftJson(options =>
         options.SerializerSettings.ReferenceLoopHandling = Newtonsoft
             .Json

@@ -11,5 +11,7 @@ public enum ErrorCode
     CodeAlreadySent,
     InvalidVerificationCode,
     NoSuchElement,
-    UserNotFound
+    UserNotFound,
+    InvalidToken,
+    NoPermission,
 }

@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace CovidLitSearch.Controllers;
 
 [ApiController]
-[Authorize]
 [Route("api/collects")]
 public class CollectController(ICollectService service) : ControllerBase
 {
@@ -21,6 +20,7 @@ public class CollectController(ICollectService service) : ControllerBase
     /// <reponse code="409">Conflict</reponse>
     /// <returns></returns>
     [HttpPost("{articleId}")]
+    [Authorize]
     public async Task<ActionResult<Collect>> Collect(string articleId)
     {
         return (await service.Collect(User.GetId(), articleId)).Match<ActionResult<Collect>>(
@@ -36,6 +36,7 @@ public class CollectController(ICollectService service) : ControllerBase
     /// <param name="pageSize"></param>
     /// <returns></returns>
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<List<CollectDto>>> GetCollects(
         [Required] int page,
         [Required] int pageSize
@@ -52,6 +53,7 @@ public class CollectController(ICollectService service) : ControllerBase
     /// <response code="204">Successfully deleted</response>
     /// <response code="400">Bad request</response>
     [HttpDelete("{articleId}")]
+    [Authorize]
     public async Task<ActionResult> DeleteCollect(string articleId)
     {
         return (await service.DeleteCollect(User.GetId(), articleId)).Match<ActionResult>(

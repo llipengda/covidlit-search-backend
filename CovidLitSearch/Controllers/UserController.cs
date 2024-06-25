@@ -37,7 +37,8 @@ public class UserController(IUserService service) : ControllerBase
     /// <param name="email"></param>
     /// <param name="password"></param>
     /// <param name="code"></param>
-    /// <response code="400">Bad Request, InvalidEmail or InvalidVerificationCode</response>
+    /// <response code="400">Bad Request, InvalidEmail</response>
+    /// <response code="401">InvalidVerificationCode</response>
     /// <response code="409">Conflict</response>
     /// <returns></returns>
     [HttpPost("signup")]
@@ -54,7 +55,7 @@ public class UserController(IUserService service) : ControllerBase
                 {
                     ErrorCode.EmailAlreadyExists => Conflict(error),
                     ErrorCode.InvalidEmail => BadRequest(error),
-                    ErrorCode.InvalidVerificationCode => BadRequest(error),
+                    ErrorCode.InvalidVerificationCode => Unauthorized(error),
                     _ => throw new Exception(error.ToString())
                 }
         );
