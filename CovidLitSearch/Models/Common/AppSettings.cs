@@ -68,6 +68,7 @@ public static class AppSettings
         if (!_hasError) return;
 
         _logger.LogError("AppSettings is not configured properly. If you are using Docker, use -e to set environment variables.");
+        Thread.Sleep(2000);
         Environment.Exit(1);
     }
 
