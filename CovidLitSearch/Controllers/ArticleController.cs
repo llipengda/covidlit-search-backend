@@ -32,7 +32,18 @@ public class ArticleController(IArticleService service) : ControllerBase
         var res = await service.GetArticles(page, pageSize, allowNoUrl, search, searchBy);
         return Ok(res.Unwrap());
     }
-
+    
+    [HttpGet("count")]
+    public async Task<ActionResult<int>> GetArticlesCount(
+        [FromQuery] bool allowNoUrl = false,
+        [FromQuery] string? search = null,
+        [FromQuery] ArticleSearchBy? searchBy = null
+    )
+    {
+        var res = await service.GetArticlesCount(allowNoUrl, search, searchBy);
+        return Ok(res.Unwrap());
+    }
+    
     /// <summary>
     ///  Get article by id
     /// </summary>

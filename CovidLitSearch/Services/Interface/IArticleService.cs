@@ -13,6 +13,8 @@ public interface IArticleService
         string? search,
         ArticleSearchBy? searchBy
     );
+    
+    Task<Result<int, Error>> GetArticlesCount(bool allowNoUrl, string? search, ArticleSearchBy? searchBy);
 
     Task<Result<ArticleDto, Error>> GetArticleById(string id, int? userId);
 

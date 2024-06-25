@@ -64,6 +64,60 @@ public class ArticleService(DbprojectContext context) : IArticleService
             .AsNoTracking()
             .ToListAsync();
     }
+    
+    public async Task<Result<int, Error>> GetArticlesCount(
+        bool allowNoUrl,
+        string? search,
+        ArticleSearchBy? searchBy
+    )
+    {
+        var searchQuery = searchBy switch
+        {
+            ArticleSearchBy.Title => "WHERE article.title LIKE @search",
+            ArticleSearchBy.Author => "WHERE article.authors LIKE @search",
+            ArticleSearchBy.Journal => "WHERE article.journal LIKE @search",
+            ArticleSearchBy.Title | ArticleSearchBy.Author
+                => "WHERE article.title LIKE @search OR article.authors LIKE @search",
+            ArticleSearchBy.Author | ArticleSearchBy.Journal
+                => "WHERE article.authors LIKE @search OR article.journal LIKE @search",
+            ArticleSearchBy.Title | ArticleSearchBy.Journal
+                => "WHERE article.title LIKE @search OR article.journal LIKE @search",
+            ArticleSearchBy.Author | ArticleSearchBy.Journal | ArticleSearchBy.Title
+                => "WHERE article.title LIKE @search OR article.authors LIKE @search OR article.journal LIKE @search",
+            _ => ""
+        };
+
+        if (!allowNoUrl)
+        {
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                searchQuery += " AND article.url IS NOT NULL";
+            }
+            else
+            {
+                searchQuery = "WHERE article.url IS NOT NULL";
+            }
+        }
+
+        var countQuery = $"""
+                          SELECT COUNT(*) AS "count"
+                          FROM article
+                          {searchQuery}
+                          """;
+
+        var parameters = new List<NpgsqlParameter>
+        {
+            new("search", $"%{search}%")
+        };
+
+        var totalCount = await context
+            .Database.SqlQueryRaw<CountType>(countQuery, parameters.ToArray())
+            .AsNoTracking()
+            .SingleAsync();
+
+        return new Result<int, Error>(totalCount.Count);
+    }
+
 
     public async Task<Result<ArticleDto, Error>> GetArticleById(string id, int? userId)
     {
