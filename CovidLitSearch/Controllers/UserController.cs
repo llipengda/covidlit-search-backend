@@ -77,6 +77,7 @@ public class UserController(IUserService service) : ControllerBase
     /// either by code or old password
     /// </summary>
     /// <param name="code"></param>
+    /// <param name="email"></param>
     /// <param name="oldPwd"></param>
     /// <param name="newPwd"></param>
     /// <returns></returns>
@@ -84,6 +85,7 @@ public class UserController(IUserService service) : ControllerBase
     [Authorize]
     public async Task<ActionResult<UserDto>> UpdatePassword(
         [FromForm] int? code,
+        [FromForm] string? email,
         [FromForm] string? oldPwd,
         [Required][FromForm] string newPwd
     )
@@ -93,7 +95,7 @@ public class UserController(IUserService service) : ControllerBase
             return BadRequest("Old password or code is required");
         }
         
-        return (await service.UpdatePassword(User.GetId(), code, oldPwd, newPwd)).Match<ActionResult<UserDto>>(
+        return (await service.UpdatePassword(User.TryGetId(), email, code, oldPwd, newPwd)).Match<ActionResult<UserDto>>(
             res => Ok(res),
             error => Unauthorized(error)
         );

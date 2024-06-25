@@ -9,7 +9,7 @@ public interface IUserService
 
     Task<Result<UserDto, Error>> Update(int id, UserDto userDto);
     
-    Task<Result<UserDto, Error>> UpdatePassword(int id, int? code, string? oldPwd, string newPwd);
+    Task<Result<UserDto, Error>> UpdatePassword(int? id, string? email, int? code, string? oldPwd, string newPwd);
 
     Task<Result<UserDto, Error>> Signup(string email, string password, int code);
 }
