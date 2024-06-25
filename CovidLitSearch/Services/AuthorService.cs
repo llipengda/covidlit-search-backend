@@ -1,5 +1,6 @@
 using CovidLitSearch.Models;
 using CovidLitSearch.Models.Common;
+using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +25,22 @@ public class AuthorService(DbprojectContext context) : IAuthorService
             )
             .AsNoTracking()
             .ToListAsync();
+
+        return data;
+    }
+
+    public async Task<Result<Author?, Error>> GetAuthorById(string name)
+    {
+        var data = await context.Database.SqlQuery<Author>(
+            $"""
+             SELECT * FROM "author" WHERE "name" = {name}
+             """
+        ).AsNoTracking().SingleOrDefaultAsync();
+
+        if (data is null)
+        {
+            return new Error(ErrorCode.NotFound);
+        }
 
         return data;
     }

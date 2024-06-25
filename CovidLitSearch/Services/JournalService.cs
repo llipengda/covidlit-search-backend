@@ -1,5 +1,6 @@
 using CovidLitSearch.Models;
 using CovidLitSearch.Models.Common;
+using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +26,24 @@ public class JournalService(DbprojectContext context) : IJournalService
             )
             .AsNoTracking()
             .ToListAsync();
+
+        return data;
+    }
+
+    public async Task<Result<Journal?, Error>> GetJournalById(string name)
+    {
+        var data = await context.Database.SqlQuery<Journal>(
+            $"""
+             SELECT * 
+             FROM "journal" 
+             WHERE "journal"."name" = {name}
+             """
+        ).AsNoTracking().SingleOrDefaultAsync();
+        
+        if (data is null)
+        {
+            return new Error(ErrorCode.NotFound);
+        }
 
         return data;
     }
