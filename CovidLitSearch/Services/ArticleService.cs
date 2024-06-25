@@ -26,6 +26,12 @@ public class ArticleService(DbprojectContext context) : IArticleService
             ArticleSearchBy.Journal => "WHERE article.journal LIKE @search",
             ArticleSearchBy.Title | ArticleSearchBy.Author
                 => "WHERE article.title LIKE @search OR article.authors LIKE @search",
+            ArticleSearchBy.Author | ArticleSearchBy.Journal
+                => "WHERE article.authors LIKE @search OR article.journal LIKE @search",
+            ArticleSearchBy.Title | ArticleSearchBy.Journal
+                => "WHERE article.title LIKE @search OR article.journal LIKE @search",
+            ArticleSearchBy.Author | ArticleSearchBy.Journal | ArticleSearchBy.Title
+                => "WHERE article.title LIKE @search OR article.authors LIKE @search OR article.journal LIKE @search",
             _ => ""
         };
         if (!allowNoUrl)
