@@ -16,6 +16,8 @@ public class SubscribeController(ISubscribeService service) : ControllerBase
     /// Subscribe to a journal
     /// </summary>
     /// <param name="journalName"></param>
+    /// <response code="201">Created</response>
+    /// <response code="409">Conflict</response>
     /// <returns></returns>
     [HttpPost("{journalName}")]
     public async Task<ActionResult<Subscribe>> Subscribe(string journalName)
@@ -43,6 +45,8 @@ public class SubscribeController(ISubscribeService service) : ControllerBase
     ///  Delete a subscribed journal
     /// </summary>
     /// <param name="journalName"></param>
+    /// <response code="204">No Content</response>
+    /// <response code="400">Bad Request</response>
     /// <returns></returns>
     [HttpDelete("{journalName}")]
     public async Task<ActionResult> DeleteSubscribe(string journalName)

@@ -116,7 +116,7 @@ public class UserService(DbprojectContext context, ICodeService codeService, IMa
             await context.Database.ExecuteSqlRawAsync(init, parameters.ToArray());
         }
 
-        return await context
+        var data = await context
             .Database.SqlQuery<User>(
                 $"""
                  SELECT * FROM "user" WHERE id = {id}
@@ -124,7 +124,8 @@ public class UserService(DbprojectContext context, ICodeService codeService, IMa
             )
             .AsNoTracking()
             .ProjectTo<UserDto>(mapper.ConfigurationProvider)
-            .SingleAsync();
+            .SingleOrDefaultAsync();
+        return data is not null ? data : new Error(ErrorCode.NotFound);
     }
 
     public async Task<Result<UserDto, Error>> UpdatePassword(int? id, string? email, int? code, string? oldPwd, string newPwd)

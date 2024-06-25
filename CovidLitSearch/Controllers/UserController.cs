@@ -17,6 +17,7 @@ public class UserController(IUserService service) : ControllerBase
     /// </summary>
     /// <param name="email"></param>
     /// <param name="password"></param>
+    /// <response code="401">Unauthorized</response>
     /// <returns></returns>
     [HttpPost("login")]
     public async Task<ActionResult<LoginDto>> Login(
@@ -36,6 +37,8 @@ public class UserController(IUserService service) : ControllerBase
     /// <param name="email"></param>
     /// <param name="password"></param>
     /// <param name="code"></param>
+    /// <response code="400">Bad Request, InvalidEmail or InvalidVerificationCode</response>
+    /// <response code="409">Conflict</response>
     /// <returns></returns>
     [HttpPost("signup")]
     public async Task<ActionResult<UserDto>> Signup(
@@ -61,6 +64,7 @@ public class UserController(IUserService service) : ControllerBase
     ///  Update a user
     /// </summary>
     /// <param name="userDto"></param>
+    /// <response code="204">No Content</response>
     /// <returns></returns>
     [HttpPut("update")]
     [Authorize]
@@ -80,9 +84,10 @@ public class UserController(IUserService service) : ControllerBase
     /// <param name="email"></param>
     /// <param name="oldPwd"></param>
     /// <param name="newPwd"></param>
+    /// <response code="400">Bad Request, Old password or code is required</response>
+    /// <response code="401">Unauthorized</response>
     /// <returns></returns>
     [HttpPut("update-password")]
-    [Authorize]
     public async Task<ActionResult<UserDto>> UpdatePassword(
         [FromForm] int? code,
         [FromForm] string? email,
