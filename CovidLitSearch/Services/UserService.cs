@@ -145,10 +145,12 @@ public class UserService(DbprojectContext context, ICodeService codeService, IMa
 
         if (code is not null)
         {
-            codeService.Verify(user.Email, (int)code);
+            if (!codeService.Verify(user.Email, (int)code).Unwrap())
+            {
+                return new Error(ErrorCode.InvalidVerificationCode);
+            }
         }
-
-        if (!PasswordUtil.Verify(oldPwd!, user.Salt, user.Password))
+        else if (!PasswordUtil.Verify(oldPwd!, user.Salt, user.Password))
         {
             return new Error(ErrorCode.InvalidCredentials);
         }
