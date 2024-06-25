@@ -26,6 +26,12 @@ public class JournalController(IJournalService service) : ControllerBase
         return (await service.GetJournals(search, page, pageSize)).Unwrap();
     }
     
+    /// <summary>
+    ///  Get journal by id
+    /// </summary>
+    /// <param name="name"></param>
+    /// <response code="404">Not Found</response>
+    /// <returns></returns>
     [HttpGet("{name}")]
     public async Task<ActionResult<Journal>> GetJournalById(
         [Required] string name

@@ -37,6 +37,7 @@ public class ArticleController(IArticleService service) : ControllerBase
     ///  Get article by id
     /// </summary>
     /// <param name="id"></param>
+    /// <response code="404">Not Found</response>
     /// <returns></returns>
     [HttpGet("{id}")]
     public async Task<ActionResult<ArticleDto>> GetArticleById([FromRoute] string id)

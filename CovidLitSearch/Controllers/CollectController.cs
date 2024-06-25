@@ -17,6 +17,8 @@ public class CollectController(ICollectService service) : ControllerBase
     ///  Collect an article
     /// </summary>
     /// <param name="articleId"></param>
+    /// <reponse code="201">Created</reponse>
+    /// <reponse code="409">Conflict</reponse>
     /// <returns></returns>
     [HttpPost("{articleId}")]
     public async Task<ActionResult<Collect>> Collect(string articleId)
