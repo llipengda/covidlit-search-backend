@@ -13,11 +13,11 @@ public class SubscribeService(DbprojectContext context) : ISubscribeService
         var subscribe = await context
             .Database.SqlQuery<Subscribe>(
                 $"""
-                SELECT * FROM "subscribe" WHERE user_id = {userId} AND journal_name = {journalName}
-                """
+                 SELECT * FROM "subscribe" WHERE user_id = {userId} AND journal_name = {journalName}
+                 """
             )
             .AsNoTracking()
-            .FirstOrDefaultAsync();
+            .SingleOrDefaultAsync();
 
         if (subscribe is not null)
         {
@@ -26,15 +26,15 @@ public class SubscribeService(DbprojectContext context) : ISubscribeService
 
         await context.Database.ExecuteSqlAsync(
             $"""
-            INSERT INTO "subscribe" VALUES({userId}, {journalName});
-            """
+             INSERT INTO "subscribe" VALUES({userId}, {journalName});
+             """
         );
 
         return await context
             .Database.SqlQuery<Subscribe>(
                 $"""
-                SELECT * FROM "subscribe" WHERE user_id = {userId} AND journal_name = {journalName}
-                """
+                 SELECT * FROM "subscribe" WHERE user_id = {userId} AND journal_name = {journalName}
+                 """
             )
             .AsNoTracking()
             .SingleAsync();
@@ -50,14 +50,14 @@ public class SubscribeService(DbprojectContext context) : ISubscribeService
         var data = await context
             .Database.SqlQuery<Subscribe>(
                 $"""
-                SELECT
-                  subscribe.*
-                FROM
-                  subscribe
-                WHERE
-                  "user_id" = {userId}
-                LIMIT {pageSize} OFFSET {(page - 1) * pageSize}
-                """
+                 SELECT
+                   subscribe.*
+                 FROM
+                   subscribe
+                 WHERE
+                   "user_id" = {userId}
+                 LIMIT {pageSize} OFFSET {(page - 1) * pageSize}
+                 """
             )
             .AsNoTracking()
             .ToListAsync();
@@ -75,11 +75,11 @@ public class SubscribeService(DbprojectContext context) : ISubscribeService
         var subscribe = await context
             .Database.SqlQuery<Subscribe>(
                 $"""
-                SELECT * FROM "subscribe" WHERE user_id = {userId} AND journal_name = {journalName}
-                """
+                 SELECT * FROM "subscribe" WHERE user_id = {userId} AND journal_name = {journalName}
+                 """
             )
             .AsNoTracking()
-            .FirstOrDefaultAsync();
+            .SingleOrDefaultAsync();
 
         if (subscribe is null)
         {
@@ -88,8 +88,8 @@ public class SubscribeService(DbprojectContext context) : ISubscribeService
 
         await context.Database.ExecuteSqlAsync(
             $"""
-            DELETE FROM "subscribe" WHERE user_id = {userId} AND journal_name = {journalName};
-            """
+             DELETE FROM "subscribe" WHERE user_id = {userId} AND journal_name = {journalName};
+             """
         );
 
         return new();

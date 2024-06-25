@@ -2,6 +2,7 @@ using CovidLitSearch.Models;
 using CovidLitSearch.Models.Common;
 using CovidLitSearch.Profiles;
 using CovidLitSearch.Utilities;
+using CovidLitSearch.Utilities.Filters;
 using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 AppSettings.Init(builder.Configuration);
 
 builder
-    .Services.AddControllers()
+    .Services.AddControllers(options => options.Filters.Add<LoggingFilter>())
     .AddNewtonsoftJson(options =>
         options.SerializerSettings.ReferenceLoopHandling = Newtonsoft
             .Json
@@ -25,6 +26,19 @@ builder.Services.AddSwaggerGen(options => options.SetupSwagger());
 
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
+builder.Services.AddCors(options => options.AddDefaultPolicy(
+    policy =>
+    {
+        if (builder.Configuration["Cors:Origins"] is { } origins && !string.IsNullOrEmpty(origins))
+        {
+            policy.WithOrigins(origins.Split(",")).AllowAnyMethod().AllowAnyHeader();
+        }
+        else
+        {
+            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        }
+    }));
+
 builder.Services.AddMemoryCache();
 
 builder.Services.AddDbContext<DbprojectContext>();
@@ -33,13 +47,15 @@ builder.Services.AddServices();
 
 var app = builder.Build();
 
+app.UseSwagger();
+app.UseSwaggerUI();
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
+app.UseCors();
 
 app.UseAuthorization();
 

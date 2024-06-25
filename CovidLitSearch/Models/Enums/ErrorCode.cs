@@ -9,7 +9,7 @@ public enum ErrorCode
     NotFound,
     AlreadySubscribed,
     CodeAlreadySent,
-    InvalidVerifyCode,
+    InvalidVerificationCode,
     NoSuchElement,
     UserNotFound
 }

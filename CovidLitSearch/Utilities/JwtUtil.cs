@@ -7,7 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace CovidLitSearch.Utilities;
 
-public class JwtUtil
+public static class JwtUtil
 {
     public static string GenerateToken(User user)
     {

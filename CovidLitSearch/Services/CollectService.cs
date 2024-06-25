@@ -14,11 +14,11 @@ public class CollectService(DbprojectContext context) : ICollectService
         var collect = await context
             .Database.SqlQuery<Collect>(
                 $"""
-                SELECT * FROM "collect" WHERE user_id = {userId} AND article_id = {articleId}
-                """
+                 SELECT * FROM "collect" WHERE user_id = {userId} AND article_id = {articleId}
+                 """
             )
             .AsNoTracking()
-            .FirstOrDefaultAsync();
+            .SingleOrDefaultAsync();
 
         if (collect is not null)
         {
@@ -27,15 +27,15 @@ public class CollectService(DbprojectContext context) : ICollectService
 
         await context.Database.ExecuteSqlAsync(
             $"""
-            INSERT INTO "collect" VALUES({userId}, {articleId});
-            """
+             INSERT INTO "collect" VALUES({userId}, {articleId});
+             """
         );
 
         return await context
             .Database.SqlQuery<Collect>(
                 $"""
-                SELECT * FROM "collect" WHERE user_id = {userId} AND article_id = {articleId}
-                """
+                 SELECT * FROM "collect" WHERE user_id = {userId} AND article_id = {articleId}
+                 """
             )
             .AsNoTracking()
             .SingleAsync();
@@ -51,20 +51,20 @@ public class CollectService(DbprojectContext context) : ICollectService
         var data = await context
             .Database.SqlQuery<CollectDto>(
                 $"""
-                SELECT
-                  "collect".*,
-                  title,
-                  authors,
-                  abstract,
-                  journal_name 
-                FROM
-                  "collect"
-                  JOIN article ON "collect".article_id = article."id"
-                  JOIN publish ON publish.article_id = "collect".article_id 
-                WHERE
-                  "user_id" = {userId}
-                LIMIT {pageSize} OFFSET {(page - 1) * pageSize}
-                """
+                 SELECT
+                   "collect".*,
+                   title,
+                   authors,
+                   abstract,
+                   journal_name 
+                 FROM
+                   "collect"
+                   JOIN article ON "collect".article_id = article."id"
+                   JOIN publish ON publish.article_id = "collect".article_id 
+                 WHERE
+                   "user_id" = {userId}
+                 LIMIT {pageSize} OFFSET {(page - 1) * pageSize}
+                 """
             )
             .AsNoTracking()
             .ToListAsync();
@@ -77,11 +77,11 @@ public class CollectService(DbprojectContext context) : ICollectService
         var collect = await context
             .Database.SqlQuery<Collect>(
                 $"""
-                SELECT * FROM "collect" WHERE user_id = {userId} AND article_id = {articleId}
-                """
+                 SELECT * FROM "collect" WHERE user_id = {userId} AND article_id = {articleId}
+                 """
             )
             .AsNoTracking()
-            .FirstOrDefaultAsync();
+            .SingleOrDefaultAsync();
 
         if (collect is null)
         {
@@ -90,8 +90,8 @@ public class CollectService(DbprojectContext context) : ICollectService
 
         await context.Database.ExecuteSqlAsync(
             $"""
-            DELETE FROM "collect" WHERE user_id = {userId} AND article_id = {articleId};
-            """
+             DELETE FROM "collect" WHERE user_id = {userId} AND article_id = {articleId};
+             """
         );
 
         return new();

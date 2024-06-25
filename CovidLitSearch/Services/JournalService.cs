@@ -17,11 +17,11 @@ public class JournalService(DbprojectContext context) : IJournalService
         var data = await context
             .Database.SqlQuery<Journal>(
                 $"""
-                SELECT * 
-                FROM "journal" 
-                WHERE "journal"."name" LIKE '%' || {search} || '%' 
-                LIMIT {pageSize} OFFSET {(page - 1) * pageSize}
-                """
+                 SELECT * 
+                 FROM "journal" 
+                 WHERE "journal"."name" LIKE '%' || {search} || '%' 
+                 LIMIT {pageSize} OFFSET {(page - 1) * pageSize}
+                 """
             )
             .AsNoTracking()
             .ToListAsync();

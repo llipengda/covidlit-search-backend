@@ -6,7 +6,7 @@ public static class PasswordUtil
 {
     public static string GenerateSalt()
     {
-        byte[] saltBytes = new byte[16];
+        var saltBytes = new byte[16];
         RandomNumberGenerator.Fill(saltBytes);
         return Convert.ToBase64String(saltBytes);
     }

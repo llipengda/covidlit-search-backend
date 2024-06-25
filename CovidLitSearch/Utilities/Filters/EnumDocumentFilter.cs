@@ -9,38 +9,36 @@ public class EnumDocumentFilter : IDocumentFilter
 {
     public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
-        Dictionary<string, Type> dict = GetAllEnum();
+        var dict = GetAllEnum();
 
-        foreach (var item in swaggerDoc.Components.Schemas)
+        foreach (var (typeName, property) in swaggerDoc.Components.Schemas)
         {
-            var property = item.Value;
-            var typeName = item.Key;
-            if (property.Enum is not null && property.Enum.Count > 0)
+            if (property.Enum is null || property.Enum.Count <= 0)
             {
-                Type itemType = dict[typeName];
-                List<OpenApiInteger> list = [];
-                foreach (var val in property.Enum)
-                {
-                    list.Add((OpenApiInteger)val);
-                }
-                property.Description += DescribeEnum(itemType, list);
+                continue;
             }
+
+            var itemType = dict[typeName];
+            List<OpenApiInteger> list = [];
+            list.AddRange(property.Enum.Cast<OpenApiInteger>());
+            property.Description += DescribeEnum(itemType, list);
         }
     }
 
     private static Dictionary<string, Type> GetAllEnum()
     {
-        Assembly ass = Assembly.Load("CovidLitSearch");
-        Type[] types = ass.GetTypes();
+        var ass = Assembly.Load("CovidLitSearch");
+        var types = ass.GetTypes();
         Dictionary<string, Type> dict = [];
 
-        foreach (Type item in types)
+        foreach (var item in types)
         {
             if (item.IsEnum)
             {
                 dict.Add(item.Name, item);
             }
         }
+
         return dict;
     }
 
@@ -52,6 +50,7 @@ public class EnumDocumentFilter : IDocumentFilter
             var value = Enum.Parse(type, item.Value.ToString());
             enumDescriptions.Add($"{Enum.GetName(type, value)} = {item.Value}");
         }
+
         return $"<br/>{Environment.NewLine}{string.Join("<br/>" + Environment.NewLine, enumDescriptions)}";
     }
 }
