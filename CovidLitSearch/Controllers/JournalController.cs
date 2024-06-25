@@ -25,4 +25,14 @@ public class JournalController(IJournalService service) : ControllerBase
     {
         return (await service.GetJournals(search, page, pageSize)).Unwrap();
     }
+    
+    [HttpGet("{name}")]
+    public async Task<ActionResult<Journal>> GetJournalById(
+        [Required] string name
+    )
+    {
+        var data = await service.GetJournalById(name);
+        return data.Match<ActionResult<Journal>>(journal => Ok(journal), _ => NotFound());
+    }
+    
 }

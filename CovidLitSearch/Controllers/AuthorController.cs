@@ -25,4 +25,15 @@ public class AuthorController(IAuthorService service) : ControllerBase
     {
         return (await service.GetAuthors(search, page, pageSize)).Unwrap();
     }
+
+
+    [HttpGet("{name}")]
+    public async Task<ActionResult<Author>> GetAuthorById(
+        [Required] string name
+    )
+    {
+        var data = await service.GetAuthorById(name);
+        return data.Match<ActionResult<Author>>(author => Ok(author), _ => NotFound());
+    }
+    
 }
