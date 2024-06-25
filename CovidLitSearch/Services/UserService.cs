@@ -127,11 +127,12 @@ public class UserService(DbprojectContext context, ICodeService codeService, IMa
             .SingleAsync();
     }
 
-    public async Task<Result<UserDto, Error>> UpdatePassword(int id, int? code, string? oldPwd, string newPwd)
+    public async Task<Result<UserDto, Error>> UpdatePassword(int? id, string? email, int? code, string? oldPwd, string newPwd)
     {
-        var user = await context.Database.SqlQuery<User>(
+
+       var user = await context.Database.SqlQuery<User>(
                 $"""
-                 SELECT * FROM "user" WHERE id = {id}
+                 SELECT * FROM "user" WHERE id = {id} OR email = {email}
                  """)
             .AsNoTracking()
             .SingleOrDefaultAsync();
