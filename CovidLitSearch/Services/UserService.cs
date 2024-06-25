@@ -160,7 +160,7 @@ public class UserService(DbprojectContext context, ICodeService codeService, IMa
 
         await context.Database.ExecuteSqlAsync(
             $"""
-             UPDATE "user" SET password = {user.Password}, salt = {user.Salt} WHERE id = {id}
+             UPDATE "user" SET password = {user.Password}, salt = {user.Salt} WHERE id = {user.Id}
              """
         );
 
