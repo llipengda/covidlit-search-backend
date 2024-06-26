@@ -63,6 +63,7 @@ public class CollectService(DbprojectContext context) : ICollectService
                    JOIN publish ON publish.article_id = "collect".article_id 
                  WHERE
                    "user_id" = {userId}
+                 ORDER BY "title"
                  LIMIT {pageSize} OFFSET {(page - 1) * pageSize}
                  """
             )

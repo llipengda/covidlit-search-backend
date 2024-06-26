@@ -171,9 +171,24 @@ public class ArticleService(DbprojectContext context) : IArticleService
         string? studyType,
         string? addressedPopulation,
         string? challenge,
-        string? focus
+        string? focus,
+        string? orderBy,
+        bool? desc
     )
     {
+        var orderQuery = "";
+        if (orderBy is not null)
+        {
+            orderQuery = $" ORDER BY {orderBy}";
+            if (desc is true)
+            {
+                orderQuery += " DESC";
+            }
+        }
+        else
+        {
+            orderQuery = " ORDER BY publish_time DESC";
+        }
         var data = await context
             .Database.SqlQuery<ArticleDto>(
                 $"""
@@ -190,7 +205,8 @@ public class ArticleService(DbprojectContext context) : IArticleService
                  ) AS art
                  JOIN publish ON "id" = publish."article_id"
                  JOIN "write" ON "id" = "write"."article_id"
-                 LIMIT {pageSize} OFFSET {(page - 1) * pageSize} 
+                 {orderQuery}
+                 LIMIT {pageSize} OFFSET {(page - 1) * pageSize}
                  """
             )
             .AsNoTracking()
@@ -213,7 +229,9 @@ public class ArticleService(DbprojectContext context) : IArticleService
                    FROM c
                    JOIN cite ON c.cited_id = cite.citing_id
                  )
-                 SELECT cited_id AS "id", title FROM c JOIN article ON cited_id = "id" LIMIT {pageSize} OFFSET {(
+                 SELECT cited_id AS "id", title FROM c JOIN article ON cited_id = "id" 
+                 ORDER BY title
+                 LIMIT {pageSize} OFFSET {(
                      page - 1
                  ) * pageSize}
                  """

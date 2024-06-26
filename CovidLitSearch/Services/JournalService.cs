@@ -21,6 +21,7 @@ public class JournalService(DbprojectContext context) : IJournalService
                  SELECT * 
                  FROM "journal" 
                  WHERE "journal"."name" LIKE '%' || {search} || '%' 
+                 ORDER BY "journal"."name"
                  LIMIT {pageSize} OFFSET {(page - 1) * pageSize}
                  """
             )

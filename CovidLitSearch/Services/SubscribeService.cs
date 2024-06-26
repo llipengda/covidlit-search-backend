@@ -56,6 +56,7 @@ public class SubscribeService(DbprojectContext context) : ISubscribeService
                    subscribe
                  WHERE
                    "user_id" = {userId}
+                 ORDER BY "journal_name"
                  LIMIT {pageSize} OFFSET {(page - 1) * pageSize}
                  """
             )
