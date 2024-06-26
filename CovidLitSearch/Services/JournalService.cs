@@ -4,6 +4,7 @@ using CovidLitSearch.Models.DTO;
 using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace CovidLitSearch.Services;
 
@@ -17,16 +18,20 @@ public class JournalService(DbprojectContext context) : IJournalService
     )
     {
         page = page <= 0 ? 1 : page;
-        var refineQuery = refine is not null ? $" AND journal.name LIKE '%{search}%' " : "";
+        var refineQuery = refine is not null ? $" AND journal.name LIKE '%{refine}%' " : "";
+        var parameters = new List<NpgsqlParameter>
+        {
+            new("search", $"%{search}%")
+        };
         var data = await context
-            .Database.SqlQuery<Journal>(
+            .Database.SqlQueryRaw<Journal>(
                 $"""
                  SELECT * 
                  FROM "journal" 
-                 WHERE "journal"."name" LIKE '%' || {search} || '%' {refineQuery}
+                 WHERE "journal"."name" LIKE @search {refineQuery}
                  ORDER BY "journal"."name"
                  LIMIT {pageSize} OFFSET {(page - 1) * pageSize}
-                 """
+                 """, parameters.ToArray()
             )
             .AsNoTracking()
             .ToListAsync();
