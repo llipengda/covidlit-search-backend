@@ -22,26 +22,26 @@ docker pull pdli/covidlit-search
 
 ```bash
 # PostgreSQL connection string
-CONNECTIONSTRINGS_DBPROJECT="Host=YourHost:Port;Database=YourDatabase;Username=YourDbUsername;Password=YourDbUserPassword;"
+CONNECTIONSTRINGS_DBPROJECT=Host=YourHost:Port;Database=YourDatabase;Username=YourDbUsername;Password=YourDbUserPassword;
 
 # JWT configuration
 ## The issuer of the token, default is "CovidLitSearch"
-JWT_ISSUER="CovidLitSearch"
+JWT_ISSUER=CovidLitSearch
 ## The audience of the token, default is "User"
-JWT_AUDIENCE="User"
+JWT_AUDIENCE=User
 ## The secret key to sign the token, must be a string with at least 16 characters
-JWT_SECRETKEY="YourSecretKey"
+JWT_SECRETKEY=YourSecretKey
 
 # SMTP configuration
-SMTP_HOST="YourSmtpHost"
-SMTP_PORT="YourSmtpPort"
-SMTP_USERNAME="YourSmtpUsername"
-SMTP_PASSWORD="YourSmtpPassword"
+SMTP_HOST=YourSmtpHost
+SMTP_PORT=YourSmtpPort
+SMTP_USERNAME=YourSmtpUsername
+SMTP_PASSWORD=YourSmtpPassword
 
 # CORS configuration
 ## The allowed origins, separated by commas
 ## If not set, all origins are allowed
-CORS_ORIGINS="https://allowed-origin.com,https://another-allowed-origin.com"
+CORS_ORIGINS=https://allowed-origin.com,https://another-allowed-origin.com
 ```
 
 3. run the container:
