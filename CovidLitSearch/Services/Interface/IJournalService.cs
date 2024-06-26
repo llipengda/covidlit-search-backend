@@ -6,7 +6,7 @@ namespace CovidLitSearch.Services.Interface;
 
 public interface IJournalService
 {
-    Task<Result<List<Journal>, Error>> GetJournals(string search, int page, int pageSize);
+    Task<Result<List<Journal>, Error>> GetJournals(string search, int page, int pageSize, string? refine);
     
     Task<Result<Journal?, Error>> GetJournalById(string name);
     

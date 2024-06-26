@@ -16,15 +16,17 @@ public class AuthorController(IAuthorService service) : ControllerBase
     /// <param name="page"></param>
     /// <param name="pageSize"></param>
     /// <param name="search"></param>
+    /// <param name="refine"></param>
     /// <returns></returns>
     [HttpGet]
     public async Task<ActionResult<List<Author>>> GetAuthors(
         [Required] int page,
         [Required] int pageSize,
-        string? search = null
+        string? search = null,
+        string? refine = null
     )
     {
-        return (await service.GetAuthors(search, page, pageSize)).Unwrap();
+        return (await service.GetAuthors(search, page, pageSize, refine)).Unwrap();
     }
 
     /// <summary>

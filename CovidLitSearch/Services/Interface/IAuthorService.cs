@@ -6,7 +6,7 @@ namespace CovidLitSearch.Services.Interface;
 
 public interface IAuthorService
 {
-    Task<Result<List<Author>, Error>> GetAuthors(string? search, int page, int pageSize);
+    Task<Result<List<Author>, Error>> GetAuthors(string? search, int page, int pageSize, string? refine);
 
     Task<Result<Author?, Error>> GetAuthorById(string name);
     
