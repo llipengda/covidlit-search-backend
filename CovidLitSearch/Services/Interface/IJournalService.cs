@@ -9,4 +9,6 @@ public interface IJournalService
     
     Task<Result<Journal?, Error>> GetJournalById(string name);
     
+    Task<Result<int, Error>> GetJournalsCount(string? search);
+    
 }

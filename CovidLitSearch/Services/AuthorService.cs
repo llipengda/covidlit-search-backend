@@ -44,4 +44,15 @@ public class AuthorService(DbprojectContext context) : IAuthorService
 
         return data;
     }
+
+    public async Task<Result<int, Error>> GetAuthorsCount(string? search)
+    {
+        var count = await context.Database.SqlQuery<CountType>(
+            $"""
+             SELECT COUNT(*) FROM "author" WHERE "name" LIKE '%' || {search} || '%'
+             """
+        ).AsNoTracking().SingleOrDefaultAsync();
+
+        return new Result<int, Error>(count!.Count);
+    }
 }
