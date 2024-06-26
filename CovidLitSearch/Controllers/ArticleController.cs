@@ -30,31 +30,13 @@ public class ArticleController(IArticleService service) : ControllerBase
         [FromQuery] string? search = null,
         [FromQuery] ArticleSearchBy? searchBy = null,
         [FromQuery] string? orderBy = null,
-        [FromQuery] bool? desc = false
+        [FromQuery] bool? desc = null
     )
     {
         var res = await service.GetArticles(page, pageSize, allowNoUrl, search, searchBy, orderBy, desc);
         return Ok(res.Unwrap());
     }
-    
-    /// <summary>
-    ///  Get articles count
-    /// </summary>
-    /// <param name="allowNoUrl"></param>
-    /// <param name="search"></param>
-    /// <param name="searchBy"></param>
-    /// <returns></returns>
-    [HttpGet("count")]
-    public async Task<ActionResult<int>> GetArticlesCount(
-        [FromQuery] bool allowNoUrl = false,
-        [FromQuery] string? search = null,
-        [FromQuery] ArticleSearchBy? searchBy = null
-    )
-    {
-        var res = await service.GetArticlesCount(allowNoUrl, search, searchBy);
-        return Ok(res.Unwrap());
-    }
-    
+
     /// <summary>
     ///  Get article by id
     /// </summary>
@@ -89,7 +71,7 @@ public class ArticleController(IArticleService service) : ControllerBase
         [FromQuery] string? challenge = null,
         [FromQuery] string? focus = null,
         [FromQuery] string? orderBy = null,
-        [FromQuery] bool? desc = false
+        [FromQuery] bool? desc = null
     )
     {
         return (
