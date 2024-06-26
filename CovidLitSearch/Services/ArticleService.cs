@@ -209,43 +209,165 @@ public class ArticleService(DbprojectContext context) : IArticleService
     public async Task<Result<int, Error>> GetArticlesCount(
         bool allowNoUrl,
         string? search,
-        ArticleSearchBy? searchBy
+        ArticleSearchBy? searchBy,
+        DateTime? from,
+        DateTime? to,
+        string? refine
     )
     {
-        var searchQuery =  searchBy switch
+	    var requireUrl = !allowNoUrl ? " AND COALESCE(article.url, '111') <> '111' " : "";
+        var dateQuery = "";
+        if (from is not null || to is not null)
         {
-            ArticleSearchBy.Title => "WHERE (article.title LIKE @search)",
-            ArticleSearchBy.Author => "WHERE (article.authors LIKE @search)",
-            ArticleSearchBy.Journal => "WHERE (journal_name LIKE @search)",
-            ArticleSearchBy.Title | ArticleSearchBy.Author
-                => "WHERE (article.title LIKE @search OR article.authors LIKE @search)",
-            ArticleSearchBy.Author | ArticleSearchBy.Journal
-                => "WHERE (article.authors LIKE @search OR journal_name LIKE @search)",
-            ArticleSearchBy.Title | ArticleSearchBy.Journal
-                => "WHERE (article.title LIKE @search OR journal_name LIKE @search)",
-            ArticleSearchBy.Author | ArticleSearchBy.Journal | ArticleSearchBy.Title
-                => "WHERE (article.title LIKE @search OR article.authors LIKE @search OR journal_name LIKE @search)",
-            _ => ""
-        };
-
-        if (!allowNoUrl)
-        {
-            if (!string.IsNullOrEmpty(searchQuery))
+            if (from is not null && to is not null)
             {
-                searchQuery += " AND article.url IS NOT NULL";
-            }
-            else
+                dateQuery = $" AND publish_time BETWEEN '{from:yyyy-MM-dd}' AND '{to:yyyy-MM-dd}' ";
+            }else if (from is not null)
             {
-                searchQuery = "WHERE article.url IS NOT NULL";
+                dateQuery = $" AND publish_time >= '{from:yyyy-MM-dd}' ";
+            }else
+            {
+                dateQuery = $" AND publish_time <= '{to:yyyy-MM-dd}' ";
             }
         }
-
-        var countQuery = $"""
-                          SELECT COUNT(*) AS "count"
-                          FROM article
-                          JOIN publish on article.id = publish.article_id
-                          {searchQuery}
-                          """;
+        var refineQuery = refine is not null 
+	        ? $" AND (article.title LIKE '%{refine}%' OR article.authors LIKE '%{refine}%' OR journal_name LIKE '%{refine}%')" : "";
+        var searchQuery =  searchBy switch
+        {
+            ArticleSearchBy.Title => $"""
+                                     SELECT COUNT(*) AS "count" FROM (
+                                     SELECT
+                                     	article.*,
+                                     	publish.* 
+                                     FROM
+                                     	article
+                                     	JOIN publish ON article.ID = publish.article_id 
+                                     WHERE
+                                     	( article.title LIKE @SEARCH {refineQuery}) {requireUrl} {dateQuery})
+                                     """,
+            ArticleSearchBy.Author => $"""
+                                      SELECT COUNT(*) AS "count" FROM (
+                                      SELECT
+                                      	article.*,
+                                      	publish.* 
+                                      FROM
+                                      	article
+                                      	JOIN publish ON article.ID = publish.article_id 
+                                      WHERE 
+                                          (article.authors LIKE @search {refineQuery}) {requireUrl} {dateQuery})
+                                      """,
+            ArticleSearchBy.Journal => $"""
+                                       SELECT COUNT(*) AS "count" FROM (
+                                       SELECT
+                                       	article.*,
+                                       	publish.* 
+                                       FROM
+                                       	article
+                                       	JOIN publish ON article.ID = publish.article_id 
+                                       WHERE (journal_name LIKE @search {refineQuery}) {requireUrl} {dateQuery})
+                                       """,
+            ArticleSearchBy.Title | ArticleSearchBy.Author
+                => $"""
+                   SELECT COUNT(*) AS "count" FROM (
+                   SELECT
+                   	article.*,
+                   	publish.* 
+                   FROM
+                   	article
+                   	JOIN publish ON article.ID = publish.article_id 
+                   WHERE
+                   	article.title LIKE @search {refineQuery} {requireUrl} {dateQuery} UNION
+                   SELECT
+                   	article.*,
+                   	publish.* 
+                   FROM
+                   	article
+                   	JOIN publish ON article.ID = publish.article_id 
+                   WHERE
+                   	article.authors LIKE @search {refineQuery} {requireUrl} {dateQuery})
+                   """,
+            ArticleSearchBy.Author | ArticleSearchBy.Journal
+                => $"""
+                    SELECT COUNT(*) AS "count" FROM (
+                    SELECT
+                    	article.*,
+                    	publish.* 
+                    FROM
+                    	article
+                    	JOIN publish ON article.ID = publish.article_id 
+                    WHERE
+                    	journal_name LIKE @search {refineQuery} {requireUrl} {dateQuery} UNION
+                    SELECT
+                    	article.*,
+                    	publish.* 
+                    FROM
+                    	article
+                    	JOIN publish ON article.ID = publish.article_id 
+                    WHERE
+                    	article.authors LIKE @search {refineQuery} {requireUrl} {dateQuery})
+                    """,
+            ArticleSearchBy.Title | ArticleSearchBy.Journal
+                => $"""
+                   SELECT COUNT(*) AS "count" FROM (
+                   SELECT
+                   	article.*,
+                   	publish.* 
+                   FROM
+                   	article
+                   	JOIN publish ON article.ID = publish.article_id 
+                   WHERE
+                   	journal_name LIKE @search {refineQuery} {requireUrl} {dateQuery} UNION 
+                   SELECT
+                   	article.*,
+                   	publish.* 
+                   FROM
+                   	article
+                   	JOIN publish ON article.ID = publish.article_id 
+                   WHERE
+                   	article.title LIKE @search {refineQuery} {requireUrl} {dateQuery})
+                   """,
+            ArticleSearchBy.Author | ArticleSearchBy.Journal | ArticleSearchBy.Title
+                => $"""
+                   SELECT COUNT(*) AS "count" FROM (
+                   SELECT
+                   	article.*,
+                   	publish.* 
+                   FROM
+                   	article
+                   	JOIN publish ON article.ID = publish.article_id 
+                   WHERE
+                   	journal_name LIKE @search {refineQuery} {requireUrl} {dateQuery} UNION
+                   SELECT
+                   	article.*,
+                   	publish.* 
+                   FROM
+                   	article
+                   	JOIN publish ON article.ID = publish.article_id 
+                   WHERE
+                   	article.authors LIKE @search {refineQuery} {requireUrl} {dateQuery} UNION
+                   SELECT
+                   	article.*,
+                   	publish.* 
+                   FROM
+                   	article
+                   	JOIN publish ON article.ID = publish.article_id 
+                   WHERE
+                   	article.title LIKE @search {refineQuery} {requireUrl} {dateQuery})
+                   """,
+            _ => ""
+        };
+        
+        if (string.IsNullOrEmpty(searchQuery))
+        {
+            searchQuery = $"""
+                           SELECT
+                           	COUNT(*) AS "count"
+                           FROM
+                           	article
+                           	JOIN publish ON article.ID = publish.article_id 
+                           WHERE ( article.title LIKE @SEARCH {refineQuery} {dateQuery} {requireUrl}) 
+                           """;
+        }
 
         var parameters = new List<NpgsqlParameter>
         {
@@ -253,7 +375,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
         };
 
         var totalCount = await context
-            .Database.SqlQueryRaw<CountType>(countQuery, parameters.ToArray())
+            .Database.SqlQueryRaw<CountType>(searchQuery, parameters.ToArray())
             .AsNoTracking()
             .SingleAsync();
 
