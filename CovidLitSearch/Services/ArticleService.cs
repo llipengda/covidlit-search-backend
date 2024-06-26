@@ -22,30 +22,139 @@ public class ArticleService(DbprojectContext context) : IArticleService
     {
         page = page <= 0 ? 1 : page;
         
+        var requireUrl = !allowNoUrl ? "AND COALESCE(article.url, '111') <> '111'" : "";
         var searchQuery =  searchBy switch
         {
-            ArticleSearchBy.Title => "WHERE (article.title LIKE @search)",
-            ArticleSearchBy.Author => "WHERE (article.authors LIKE @search)",
-            ArticleSearchBy.Journal => "WHERE (journal_name LIKE @search)",
+            ArticleSearchBy.Title => $"""
+                                     SELECT
+                                     	article.*,
+                                     	publish.* 
+                                     FROM
+                                     	article
+                                     	JOIN publish ON article.ID = publish.article_id 
+                                     WHERE
+                                     	( article.title LIKE @SEARCH ) {requireUrl}
+                                     """,
+            ArticleSearchBy.Author => $"""
+                                      SELECT
+                                      	article.*,
+                                      	publish.* 
+                                      FROM
+                                      	article
+                                      	JOIN publish ON article.ID = publish.article_id 
+                                      WHERE 
+                                          (article.authors LIKE @search) {requireUrl}
+                                      """,
+            ArticleSearchBy.Journal => $"""
+                                       SELECT
+                                       	article.*,
+                                       	publish.* 
+                                       FROM
+                                       	article
+                                       	JOIN publish ON article.ID = publish.article_id 
+                                       WHERE (journal_name LIKE @search) {requireUrl}
+                                       """,
             ArticleSearchBy.Title | ArticleSearchBy.Author
-                => "WHERE (article.title LIKE @search OR article.authors LIKE @search)",
+                => $"""
+                   SELECT
+                   	article.*,
+                   	publish.* 
+                   FROM
+                   	article
+                   	JOIN publish ON article.ID = publish.article_id 
+                   WHERE
+                   	article.title LIKE @search {requireUrl} UNION
+                   SELECT
+                   	article.*,
+                   	publish.* 
+                   FROM
+                   	article
+                   	JOIN publish ON article.ID = publish.article_id 
+                   WHERE
+                   	article.authors LIKE @search {requireUrl}
+                   """,
             ArticleSearchBy.Author | ArticleSearchBy.Journal
-                => "WHERE (article.authors LIKE @search OR journal_name LIKE @search)",
+                => $"""
+                    SELECT
+                    	article.*,
+                    	publish.* 
+                    FROM
+                    	article
+                    	JOIN publish ON article.ID = publish.article_id 
+                    WHERE
+                    	journal_name LIKE @search {requireUrl} UNION
+                    SELECT
+                    	article.*,
+                    	publish.* 
+                    FROM
+                    	article
+                    	JOIN publish ON article.ID = publish.article_id 
+                    WHERE
+                    	article.authors LIKE @search {requireUrl}
+                    """,
             ArticleSearchBy.Title | ArticleSearchBy.Journal
-                => "WHERE (article.title LIKE @search OR journal_name LIKE @search)",
+                => $"""
+                   SELECT
+                   	article.*,
+                   	publish.* 
+                   FROM
+                   	article
+                   	JOIN publish ON article.ID = publish.article_id 
+                   WHERE
+                   	journal_name LIKE @search {requireUrl} UNION 
+                   SELECT
+                   	article.*,
+                   	publish.* 
+                   FROM
+                   	article
+                   	JOIN publish ON article.ID = publish.article_id 
+                   WHERE
+                   	article.title LIKE @search {requireUrl}
+                   """,
             ArticleSearchBy.Author | ArticleSearchBy.Journal | ArticleSearchBy.Title
-                => "WHERE (article.title LIKE @search OR article.authors LIKE @search OR journal_name LIKE @search)",
+                => $"""
+                   SELECT
+                   	article.*,
+                   	publish.* 
+                   FROM
+                   	article
+                   	JOIN publish ON article.ID = publish.article_id 
+                   WHERE
+                   	journal_name LIKE @search {requireUrl} UNION
+                   SELECT
+                   	article.*,
+                   	publish.* 
+                   FROM
+                   	article
+                   	JOIN publish ON article.ID = publish.article_id 
+                   WHERE
+                   	article.authors LIKE @search {requireUrl} UNION
+                   SELECT
+                   	article.*,
+                   	publish.* 
+                   FROM
+                   	article
+                   	JOIN publish ON article.ID = publish.article_id 
+                   WHERE
+                   	article.title LIKE @search {requireUrl}
+                   """,
             _ => ""
         };
-        if (!allowNoUrl)
+        
+        if (string.IsNullOrEmpty(searchQuery))
         {
-            if (!string.IsNullOrEmpty(searchQuery))
+            searchQuery = """
+                          SELECT
+                          	article.*,
+                          	publish.* 
+                          FROM
+                          	article
+                          	JOIN publish ON article.ID = publish.article_id 
+                          WHERE ( article.title LIKE @SEARCH ) 
+                          """;
+            if (!allowNoUrl)
             {
-                searchQuery += " AND COALESCE(article.url, '111') <> '111'";
-            }
-            else
-            {
-                searchQuery = "WHERE COALESCE(article.url, '111') <> '111'";
+                searchQuery += "AND COALESCE(article.url, '111') <> '111';";
             }
         }
 
@@ -63,9 +172,6 @@ public class ArticleService(DbprojectContext context) : IArticleService
         }
         
         var query = $"""
-                     SELECT article.*, publish.*
-                     FROM article
-                     JOIN publish on article.id = publish.article_id
                      {searchQuery}
                      LIMIT @pageSize OFFSET @offset
                      """;
@@ -221,14 +327,14 @@ public class ArticleService(DbprojectContext context) : IArticleService
             .Database.SqlQuery<CiteDto>(
                 $"""
                  WITH RECURSIVE c AS (
-                   SELECT citing_id, cited_id
+                   SELECT citing_id, cited_id, 0 AS flag
                    FROM cite WHERE citing_id = {id}
                    UNION ALL
-                   SELECT cite.citing_id, cite.cited_id
+                   SELECT cite.citing_id, cite.cited_id, 1 AS flag
                    FROM c
                    JOIN cite ON c.cited_id = cite.citing_id
                  )
-                 SELECT cited_id AS "id", NULL AS "title" FROM c
+                 SELECT cited_id AS "id", NULL AS "title", flag FROM c
                  """
             )
             .AsNoTracking()
