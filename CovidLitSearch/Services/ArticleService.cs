@@ -40,6 +40,8 @@ public class ArticleService(DbprojectContext context) : IArticleService
                 dateQuery = $" AND publish_time <= '{to:yyyy-MM-dd}' ";
             }
         }
+
+        var refineQuery = refine is not null ? $" AND (article.title LIKE '%{refine}%' OR article.authors LIKE '%{refine}%' OR journal_name LIKE '%{refine}%')" : "";
         var searchQuery =  searchBy switch
         {
             ArticleSearchBy.Title => $"""
@@ -50,7 +52,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
                                      	article
                                      	JOIN publish ON article.ID = publish.article_id 
                                      WHERE
-                                     	( article.title LIKE @SEARCH ) {requireUrl} {dateQuery}
+                                     	( article.title LIKE @SEARCH {refineQuery}) {requireUrl} {dateQuery}
                                      """,
             ArticleSearchBy.Author => $"""
                                       SELECT
@@ -60,7 +62,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
                                       	article
                                       	JOIN publish ON article.ID = publish.article_id 
                                       WHERE 
-                                          (article.authors LIKE @search) {requireUrl} {dateQuery}
+                                          (article.authors LIKE @search {refineQuery}) {requireUrl} {dateQuery}
                                       """,
             ArticleSearchBy.Journal => $"""
                                        SELECT
@@ -69,7 +71,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
                                        FROM
                                        	article
                                        	JOIN publish ON article.ID = publish.article_id 
-                                       WHERE (journal_name LIKE @search) {requireUrl} {dateQuery}
+                                       WHERE (journal_name LIKE @search {refineQuery}) {requireUrl} {dateQuery}
                                        """,
             ArticleSearchBy.Title | ArticleSearchBy.Author
                 => $"""
@@ -80,7 +82,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
                    	article
                    	JOIN publish ON article.ID = publish.article_id 
                    WHERE
-                   	article.title LIKE @search {requireUrl} {dateQuery} UNION
+                   	article.title LIKE @search {refineQuery} {requireUrl} {dateQuery} UNION
                    SELECT
                    	article.*,
                    	publish.* 
@@ -88,7 +90,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
                    	article
                    	JOIN publish ON article.ID = publish.article_id 
                    WHERE
-                   	article.authors LIKE @search {requireUrl} {dateQuery}
+                   	article.authors LIKE @search {refineQuery} {requireUrl} {dateQuery}
                    """,
             ArticleSearchBy.Author | ArticleSearchBy.Journal
                 => $"""
@@ -99,7 +101,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
                     	article
                     	JOIN publish ON article.ID = publish.article_id 
                     WHERE
-                    	journal_name LIKE @search {requireUrl} {dateQuery} UNION
+                    	journal_name LIKE @search {refineQuery} {requireUrl} {dateQuery} UNION
                     SELECT
                     	article.*,
                     	publish.* 
@@ -107,7 +109,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
                     	article
                     	JOIN publish ON article.ID = publish.article_id 
                     WHERE
-                    	article.authors LIKE @search {requireUrl} {dateQuery}
+                    	article.authors LIKE @search {refineQuery} {requireUrl} {dateQuery}
                     """,
             ArticleSearchBy.Title | ArticleSearchBy.Journal
                 => $"""
@@ -118,7 +120,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
                    	article
                    	JOIN publish ON article.ID = publish.article_id 
                    WHERE
-                   	journal_name LIKE @search {requireUrl} {dateQuery} UNION 
+                   	journal_name LIKE @search {refineQuery} {requireUrl} {dateQuery} UNION 
                    SELECT
                    	article.*,
                    	publish.* 
@@ -126,7 +128,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
                    	article
                    	JOIN publish ON article.ID = publish.article_id 
                    WHERE
-                   	article.title LIKE @search {requireUrl} {dateQuery}
+                   	article.title LIKE @search {refineQuery} {requireUrl} {dateQuery}
                    """,
             ArticleSearchBy.Author | ArticleSearchBy.Journal | ArticleSearchBy.Title
                 => $"""
@@ -137,7 +139,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
                    	article
                    	JOIN publish ON article.ID = publish.article_id 
                    WHERE
-                   	journal_name LIKE @search {requireUrl} {dateQuery} UNION
+                   	journal_name LIKE @search {refineQuery} {requireUrl} {dateQuery} UNION
                    SELECT
                    	article.*,
                    	publish.* 
@@ -145,7 +147,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
                    	article
                    	JOIN publish ON article.ID = publish.article_id 
                    WHERE
-                   	article.authors LIKE @search {requireUrl} {dateQuery} UNION
+                   	article.authors LIKE @search {refineQuery} {requireUrl} {dateQuery} UNION
                    SELECT
                    	article.*,
                    	publish.* 
@@ -153,26 +155,22 @@ public class ArticleService(DbprojectContext context) : IArticleService
                    	article
                    	JOIN publish ON article.ID = publish.article_id 
                    WHERE
-                   	article.title LIKE @search {requireUrl} {dateQuery}
+                   	article.title LIKE @search {refineQuery} {requireUrl} {dateQuery}
                    """,
             _ => ""
         };
         
         if (string.IsNullOrEmpty(searchQuery))
         {
-            searchQuery = """
-                          SELECT
-                          	article.*,
-                          	publish.* 
-                          FROM
-                          	article
-                          	JOIN publish ON article.ID = publish.article_id 
-                          WHERE ( article.title LIKE @SEARCH ) 
-                          """;
-            if (!allowNoUrl)
-            {
-                searchQuery += "AND COALESCE(article.url, '111') <> '111';";
-            }
+            searchQuery = $"""
+                           SELECT
+                           	article.*,
+                           	publish.* 
+                           FROM
+                           	article
+                           	JOIN publish ON article.ID = publish.article_id 
+                           WHERE ( article.title LIKE @SEARCH {refineQuery} {dateQuery} {requireUrl}) 
+                           """;
         }
 
         if (orderBy is not null)
@@ -198,6 +196,10 @@ public class ArticleService(DbprojectContext context) : IArticleService
             new("pageSize", pageSize),
             new("offset", (page - 1) * pageSize)
         };
+        if (refine is not null)
+        {
+            parameters.Add(new ("refine", $"%{refine}%"));
+        }
         return await context
             .Database.SqlQueryRaw<ArticleDto>(query, parameters.ToArray())
             .AsNoTracking()
