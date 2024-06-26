@@ -41,11 +41,11 @@ public class ArticleService(DbprojectContext context) : IArticleService
         {
             if (!string.IsNullOrEmpty(searchQuery))
             {
-                searchQuery += " AND article.url IS NOT NULL";
+                searchQuery += " AND COALESCE(article.url, '111') <> '111'";
             }
             else
             {
-                searchQuery = "WHERE article.url IS NOT NULL";
+                searchQuery = "WHERE COALESCE(article.url, '111') <> '111'";
             }
         }
 
