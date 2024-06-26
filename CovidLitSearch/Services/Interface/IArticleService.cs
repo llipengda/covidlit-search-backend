@@ -13,7 +13,10 @@ public interface IArticleService
         string? search,
         ArticleSearchBy? searchBy,
         string? orderBy,
-        bool? desc
+        bool? desc,
+        DateTime? from,
+        DateTime? to,
+        string? refine
     );
     
     Task<Result<int, Error>> GetArticlesCount(bool allowNoUrl, string? search, ArticleSearchBy? searchBy);
