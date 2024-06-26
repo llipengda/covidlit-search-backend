@@ -4,6 +4,7 @@ using CovidLitSearch.Models.DTO;
 using CovidLitSearch.Models.Enums;
 using CovidLitSearch.Services.Interface;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace CovidLitSearch.Services;
 
@@ -12,19 +13,25 @@ public class AuthorService(DbprojectContext context) : IAuthorService
     public async Task<Result<List<Author>, Error>> GetAuthors(
         string? search,
         int page,
-        int pageSize
+        int pageSize,
+        string? refine
     )
     {
         page = page <= 0 ? 1 : page;
+        var refineQuery = refine is not null ? $" AND author.name LIKE '%{refine}%' " : "";
+        var parameters = new List<NpgsqlParameter>
+        {
+            new("search", $"%{search}%")
+        };
         var data = await context
-            .Database.SqlQuery<Author>(
+            .Database.SqlQueryRaw<Author>(
                 $"""
-                 SELECT * FROM "author" WHERE "name" LIKE '%'|| {search} || '%' 
+                 SELECT * FROM "author" WHERE "name" LIKE @search {refineQuery}
                  order by "name"
                  LIMIT {pageSize} OFFSET {(
                     page - 1
                 ) * pageSize}
-                 """
+                 """, parameters.ToArray()
             )
             .AsNoTracking()
             .ToListAsync();

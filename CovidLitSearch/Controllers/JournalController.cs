@@ -16,15 +16,17 @@ public class JournalController(IJournalService service) : ControllerBase
     /// <param name="search"></param>
     /// <param name="page"></param>
     /// <param name="pageSize"></param>
+    /// <param name="refine"></param>
     /// <returns></returns>
     [HttpGet]
     public async Task<ActionResult<List<Journal>>> GetJournals(
         [Required] string search,
         [Required] int page,
-        [Required] int pageSize
+        [Required] int pageSize,
+        string? refine = null
     )
     {
-        return (await service.GetJournals(search, page, pageSize)).Unwrap();
+        return (await service.GetJournals(search, page, pageSize, refine)).Unwrap();
     }
     
     /// <summary>

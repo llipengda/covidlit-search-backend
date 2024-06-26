@@ -12,16 +12,18 @@ public class JournalService(DbprojectContext context) : IJournalService
     public async Task<Result<List<Journal>, Error>> GetJournals(
         string search,
         int page,
-        int pageSize
+        int pageSize,
+        string? refine
     )
     {
         page = page <= 0 ? 1 : page;
+        var refineQuery = refine is not null ? $" AND journal.name LIKE '%{search}%' " : "";
         var data = await context
             .Database.SqlQuery<Journal>(
                 $"""
                  SELECT * 
                  FROM "journal" 
-                 WHERE "journal"."name" LIKE '%' || {search} || '%' 
+                 WHERE "journal"."name" LIKE '%' || {search} || '%' {refineQuery}
                  ORDER BY "journal"."name"
                  LIMIT {pageSize} OFFSET {(page - 1) * pageSize}
                  """
