@@ -55,12 +55,17 @@ public class AuthorService(DbprojectContext context) : IAuthorService
         return data;
     }
 
-    public async Task<Result<int, Error>> GetAuthorsCount(string? search)
+    public async Task<Result<int, Error>> GetAuthorsCount(string? search, string? refine)
     {
-        var count = await context.Database.SqlQuery<CountType>(
+        var refineQuery = refine is not null ? $" AND author.name LIKE '%{refine}%' " : "";
+        var parameters = new List<NpgsqlParameter>
+        {
+            new("search", $"%{search}%")
+        };
+        var count = await context.Database.SqlQueryRaw<CountType>(
             $"""
-             SELECT COUNT(*) FROM "author" WHERE "name" LIKE '%' || {search} || '%'
-             """
+             SELECT COUNT(*) FROM "author" WHERE "name" LIKE @search {refineQuery}
+             """, parameters.ToArray()
         ).AsNoTracking().SingleOrDefaultAsync();
 
         return new Result<int, Error>(count!.Count);

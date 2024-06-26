@@ -10,7 +10,7 @@ public interface IAuthorService
 
     Task<Result<Author?, Error>> GetAuthorById(string name);
     
-    Task<Result<int, Error>> GetAuthorsCount(string? search);
+    Task<Result<int, Error>> GetAuthorsCount(string? search, string? refine);
     
     Task<Result<List<ArticleDto>, Error>> GetArticlesByAuthor(string name, int page, int pageSize); 
 

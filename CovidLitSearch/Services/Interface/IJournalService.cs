@@ -10,7 +10,7 @@ public interface IJournalService
     
     Task<Result<Journal?, Error>> GetJournalById(string name);
     
-    Task<Result<int, Error>> GetJournalsCount(string? search);
+    Task<Result<int, Error>> GetJournalsCount(string? search, string? refine);
     
     Task<Result<List<ArticleDto>, Error> > GetArticlesByJournal(string name, int page, int pageSize); 
     
