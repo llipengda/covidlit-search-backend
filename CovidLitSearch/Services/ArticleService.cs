@@ -329,7 +329,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
                  WITH RECURSIVE c AS (
                    SELECT citing_id, cited_id, 0 AS flag
                    FROM cite WHERE citing_id = {id}
-                   UNION ALL
+                   UNION
                    SELECT cite.citing_id, cite.cited_id, 1 AS flag
                    FROM c
                    JOIN cite ON c.cited_id = cite.citing_id
