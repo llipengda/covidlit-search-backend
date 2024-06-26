@@ -9,4 +9,6 @@ public class CiteDto
 
     [Column("title")] 
     public string? Title { get; set; }
+
+    [Column("flag")] public int Flag { get; set; } = 0;
 }
