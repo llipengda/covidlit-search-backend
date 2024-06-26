@@ -109,17 +109,13 @@ public class ArticleController(IArticleService service) : ControllerBase
     /// <summary>
     ///  Get cites by article id
     /// </summary>
-    /// <param name="page"></param>
-    /// <param name="pageSize"></param>
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpGet("{id}/cites")]
     public async Task<ActionResult<List<CiteDto>>> GetCites(
-        [FromQuery][Required] int page,
-        [FromQuery][Required] int pageSize,
         [FromRoute][Required] string id
     )
     {
-        return (await service.GetCites(page, pageSize, id)).Unwrap();
+        return (await service.GetCites(id)).Unwrap();
     }
 }
