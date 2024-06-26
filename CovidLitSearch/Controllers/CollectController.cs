@@ -72,4 +72,16 @@ public class CollectController(ICollectService service) : ControllerBase
     {
         return (await service.IsCollected(User.GetId(), articleId)).Unwrap();
     }
+    
+    /// <summary>
+    ///  Get collection count
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("count")]
+    [Authorize]
+    public async Task<ActionResult<int>> GetCollectsCount()
+    {
+        return (await service.GetCollectsCount(User.GetId())).Unwrap();
+    }
+    
 }

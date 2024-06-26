@@ -110,4 +110,17 @@ public class CollectService(DbprojectContext context) : ICollectService
             .SingleOrDefaultAsync();
         return new Result<bool, Error>(data is not null);
     }
+
+    public async Task<Result<int, Error>> GetCollectsCount(int userId)
+    {
+        var count = await context
+            .Database.SqlQuery<CountType>(
+                $"""
+                 SELECT COUNT(*) FROM "collect" WHERE "user_id" = {userId}
+                 """
+            )
+            .AsNoTracking()
+            .SingleOrDefaultAsync();
+        return new Result<int, Error>(count!.Count);
+    }
 }
