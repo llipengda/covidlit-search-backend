@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using CovidLitSearch.Models;
+using CovidLitSearch.Models.DTO;
 using CovidLitSearch.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 
@@ -52,6 +53,25 @@ public class JournalController(IJournalService service) : ControllerBase
     )
     {
         return (await service.GetJournalsCount(search)).Unwrap();
+    }
+    
+    /// <summary>
+    ///  Get articles by journal
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="page"></param>
+    /// <param name="pageSize"></param>
+    /// <response code="404">Not Found</response>
+    /// <returns></returns>
+    [HttpGet("{name}/articles")]
+    public async Task<ActionResult<List<ArticleDto>>> GetArticlesByJournal(
+        [Required] string name,
+        [Required] int page,
+        [Required] int pageSize
+    )
+    {
+        var data = await service.GetArticlesByJournal(name, page, pageSize);
+        return data.Match<ActionResult<List<ArticleDto>>>(articles => Ok(articles), _ => NotFound());
     }
     
 }

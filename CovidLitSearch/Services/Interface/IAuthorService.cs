@@ -1,5 +1,6 @@
 using CovidLitSearch.Models;
 using CovidLitSearch.Models.Common;
+using CovidLitSearch.Models.DTO;
 
 namespace CovidLitSearch.Services.Interface;
 
@@ -10,5 +11,7 @@ public interface IAuthorService
     Task<Result<Author?, Error>> GetAuthorById(string name);
     
     Task<Result<int, Error>> GetAuthorsCount(string? search);
+    
+    Task<Result<List<ArticleDto>, Error>> GetArticlesByAuthor(string name, int page, int pageSize); 
 
 }

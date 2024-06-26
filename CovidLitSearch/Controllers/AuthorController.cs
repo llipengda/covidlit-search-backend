@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using CovidLitSearch.Models;
+using CovidLitSearch.Models.DTO;
 using CovidLitSearch.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 
@@ -52,6 +53,25 @@ public class AuthorController(IAuthorService service) : ControllerBase
     )
     {
         return (await service.GetAuthorsCount(search)).Unwrap();
+    }
+    
+    /// <summary>
+    ///  Get articles by author
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="page"></param>
+    /// <param name="pageSize"></param>
+    /// <response code="404">Not Found</response>
+    /// <returns></returns>
+    [HttpGet("{name}/articles")]
+    public async Task<ActionResult<List<ArticleDto>>> GetArticlesByAuthor(
+        [Required] string name,
+        [Required] int page,
+        [Required] int pageSize
+    )
+    {
+        var data = await service.GetArticlesByAuthor(name, page, pageSize);
+        return data.Match<ActionResult<List<ArticleDto>>>(articles => Ok(articles), _ => NotFound());
     }
     
 }
