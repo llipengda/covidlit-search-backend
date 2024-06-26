@@ -87,6 +87,24 @@ public class ArticleController(IArticleService service) : ControllerBase
             )
         ).Unwrap();
     }
+    
+    /// <summary>
+    ///  Get articles count
+    /// </summary>
+    /// <param name="allowNoUrl"></param>
+    /// <param name="search"></param>
+    /// <param name="searchBy"></param>
+    /// <returns></returns>
+    [HttpGet("count")]
+    public async Task<ActionResult<int>> GetArticlesCount(
+        [FromQuery] bool allowNoUrl = false,
+        [FromQuery] string? search = null,
+        [FromQuery] ArticleSearchBy? searchBy = null
+    )
+    {
+        var res = await service.GetArticlesCount(allowNoUrl, search, searchBy);
+        return Ok(res.Unwrap());
+    }
 
     /// <summary>
     ///  Get cites by article id
