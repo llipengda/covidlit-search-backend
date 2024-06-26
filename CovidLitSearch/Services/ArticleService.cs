@@ -152,6 +152,13 @@ public class ArticleService(DbprojectContext context) : IArticleService
                               	JOIN publish ON article.ID = publish.article_id 
                               WHERE article.url IS NOT NULL;
                               """;
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                searchQuery += " AND COALESCE(article.url, '111') <> '111'";
+            }
+            else
+            {
+                searchQuery = "WHERE COALESCE(article.url, '111') <> '111'";
             }
         }
 
@@ -251,7 +258,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
                  """
             )
             .AsNoTracking()
-            .SingleOrDefaultAsync();
+            .FirstOrDefaultAsync();
 
         if (article is null)
         {
