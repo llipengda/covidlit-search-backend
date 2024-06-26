@@ -26,7 +26,9 @@ public interface IArticleService
         string? studyType,
         string? addressedPopulation,
         string? challenge,
-        string? focus
+        string? focus,
+        string? orderBy,
+        bool? desc
     );
 
     Task<Result<List<CiteDto>, Error>> GetCites(int page, int pageSize, string id);

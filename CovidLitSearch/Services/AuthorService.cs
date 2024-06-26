@@ -18,7 +18,9 @@ public class AuthorService(DbprojectContext context) : IAuthorService
         var data = await context
             .Database.SqlQuery<Author>(
                 $"""
-                 SELECT * FROM "author" WHERE "name" LIKE '%'|| {search} || '%' LIMIT {pageSize} OFFSET {(
+                 SELECT * FROM "author" WHERE "name" LIKE '%'|| {search} || '%' 
+                 order by "name"
+                 LIMIT {pageSize} OFFSET {(
                     page - 1
                 ) * pageSize}
                  """

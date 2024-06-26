@@ -58,4 +58,16 @@ public class SubscribeController(ISubscribeService service) : ControllerBase
             BadRequest
         );
     }
+    
+    /// <summary>
+    ///  Check if a journal is subscribed
+    /// </summary>
+    /// <param name="journalName"></param>
+    /// <returns></returns>
+    [HttpGet("is/{journalName}")]
+    [Authorize]
+    public async Task<ActionResult<bool>> IsSubscribed([Required] string journalName)
+    {
+        return (await service.IsSubscribed(User.GetId(), journalName)).Unwrap();
+    }
 }

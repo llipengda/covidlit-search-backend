@@ -77,6 +77,8 @@ public class ArticleController(IArticleService service) : ControllerBase
     /// <param name="addressedPopulation"></param>
     /// <param name="challenge"></param>
     /// <param name="focus"></param>
+    /// <param name="orderBy"></param>
+    /// <param name="desc"></param>
     /// <returns></returns>
     [HttpGet("research")]
     public async Task<ActionResult<List<ArticleDto>>> GetArticlesByResearch(
@@ -85,7 +87,9 @@ public class ArticleController(IArticleService service) : ControllerBase
         [FromQuery] string? studyType = null,
         [FromQuery] string? addressedPopulation = null,
         [FromQuery] string? challenge = null,
-        [FromQuery] string? focus = null
+        [FromQuery] string? focus = null,
+        [FromQuery] string? orderBy = null,
+        [FromQuery] bool? desc = false
     )
     {
         return (
@@ -95,7 +99,9 @@ public class ArticleController(IArticleService service) : ControllerBase
                 studyType,
                 addressedPopulation,
                 challenge,
-                focus
+                focus,
+                orderBy,
+                desc
             )
         ).Unwrap();
     }

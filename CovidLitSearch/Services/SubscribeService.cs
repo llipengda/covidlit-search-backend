@@ -56,6 +56,7 @@ public class SubscribeService(DbprojectContext context) : ISubscribeService
                    subscribe
                  WHERE
                    "user_id" = {userId}
+                 ORDER BY "journal_name"
                  LIMIT {pageSize} OFFSET {(page - 1) * pageSize}
                  """
             )
@@ -94,4 +95,18 @@ public class SubscribeService(DbprojectContext context) : ISubscribeService
 
         return new();
     }
+
+    public async Task<Result<bool, Error>> IsSubscribed(int userId, string journalName)
+    {
+        var data = await context
+            .Database.SqlQuery<Subscribe>(
+                $"""
+                 SELECT * FROM "subscribe" WHERE user_id = {userId} AND journal_name = {journalName}
+                 """
+            )
+            .AsNoTracking()
+            .SingleOrDefaultAsync();
+        return new Result<bool, Error>(data is not null);
+    }
+    
 }

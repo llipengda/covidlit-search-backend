@@ -63,6 +63,7 @@ public class CollectService(DbprojectContext context) : ICollectService
                    JOIN publish ON publish.article_id = "collect".article_id 
                  WHERE
                    "user_id" = {userId}
+                 ORDER BY "title"
                  LIMIT {pageSize} OFFSET {(page - 1) * pageSize}
                  """
             )
@@ -95,5 +96,18 @@ public class CollectService(DbprojectContext context) : ICollectService
         );
 
         return new();
+    }
+
+    public async Task<Result<bool, Error>> IsCollected(int userId, string articleId)
+    {
+        var data = await context
+            .Database.SqlQuery<Collect>(
+                $"""
+                 SELECT * FROM "collect" WHERE user_id = {userId} AND article_id = {articleId}
+                 """
+            )
+            .AsNoTracking()
+            .SingleOrDefaultAsync();
+        return new Result<bool, Error>(data is not null);
     }
 }

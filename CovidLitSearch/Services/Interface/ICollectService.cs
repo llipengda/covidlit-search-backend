@@ -11,4 +11,6 @@ public interface ICollectService
     Task<Result<List<CollectDto>, Error> > GetCollects(int page, int pageSize, int userId);
     
     Task<Result<Error>> DeleteCollect(int userId, string articleId);
+    
+    Task<Result<bool, Error>> IsCollected(int userId, string articleId);
 }
