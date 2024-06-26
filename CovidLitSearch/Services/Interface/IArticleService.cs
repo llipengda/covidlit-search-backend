@@ -11,7 +11,9 @@ public interface IArticleService
         int pageSize,
         bool allowNoUrl,
         string? search,
-        ArticleSearchBy? searchBy
+        ArticleSearchBy? searchBy,
+        string? orderBy,
+        bool? desc
     );
     
     Task<Result<int, Error>> GetArticlesCount(bool allowNoUrl, string? search, ArticleSearchBy? searchBy);
