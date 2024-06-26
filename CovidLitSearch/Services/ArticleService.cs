@@ -334,7 +334,9 @@ public class ArticleService(DbprojectContext context) : IArticleService
                    FROM c
                    JOIN cite ON c.cited_id = cite.citing_id
                  )
-                 SELECT cited_id AS "id", NULL AS "title", flag FROM c
+                 SELECT cited_id AS "id", NULL AS "title", flag, 
+                 CASE WHEN flag = 1 THEN (SELECT title FROM article WHERE id = citing_id) ELSE NULL END AS citing_title
+                 FROM c
                  """
             )
             .AsNoTracking()
