@@ -15,23 +15,26 @@ public class ArticleService(DbprojectContext context) : IArticleService
         int pageSize,
         bool allowNoUrl,
         string? search,
-        ArticleSearchBy? searchBy
+        ArticleSearchBy? searchBy,
+        string? orderBy,
+        bool? desc
     )
     {
         page = page <= 0 ? 1 : page;
-        var searchQuery = searchBy switch
+        
+        var searchQuery =  searchBy switch
         {
-            ArticleSearchBy.Title => "WHERE article.title LIKE @search",
-            ArticleSearchBy.Author => "WHERE article.authors LIKE @search",
-            ArticleSearchBy.Journal => "WHERE article.journal LIKE @search",
+            ArticleSearchBy.Title => "WHERE (article.title LIKE @search)",
+            ArticleSearchBy.Author => "WHERE (article.authors LIKE @search)",
+            ArticleSearchBy.Journal => "WHERE (journal_name LIKE @search)",
             ArticleSearchBy.Title | ArticleSearchBy.Author
-                => "WHERE article.title LIKE @search OR article.authors LIKE @search",
+                => "WHERE (article.title LIKE @search OR article.authors LIKE @search)",
             ArticleSearchBy.Author | ArticleSearchBy.Journal
-                => "WHERE article.authors LIKE @search OR article.journal LIKE @search",
+                => "WHERE (article.authors LIKE @search OR journal_name LIKE @search)",
             ArticleSearchBy.Title | ArticleSearchBy.Journal
-                => "WHERE article.title LIKE @search OR article.journal LIKE @search",
+                => "WHERE (article.title LIKE @search OR journal_name LIKE @search)",
             ArticleSearchBy.Author | ArticleSearchBy.Journal | ArticleSearchBy.Title
-                => "WHERE article.title LIKE @search OR article.authors LIKE @search OR article.journal LIKE @search",
+                => "WHERE (article.title LIKE @search OR article.authors LIKE @search OR journal_name LIKE @search)",
             _ => ""
         };
         if (!allowNoUrl)
@@ -46,6 +49,19 @@ public class ArticleService(DbprojectContext context) : IArticleService
             }
         }
 
+        if (orderBy is not null)
+        {
+            searchQuery += $" ORDER BY {orderBy}";
+            if (desc is true)
+            {
+                searchQuery += " DESC";
+            }
+        }
+        else
+        {
+            searchQuery += " ORDER BY publish_time DESC";
+        }
+        
         var query = $"""
                      SELECT article.*, publish.*
                      FROM article

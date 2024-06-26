@@ -19,6 +19,8 @@ public class ArticleController(IArticleService service) : ControllerBase
     /// <param name="allowNoUrl"></param>
     /// <param name="search"></param>
     /// <param name="searchBy"></param>
+    /// <param name="orderBy"></param>
+    /// <param name="desc"></param>
     /// <returns></returns>
     [HttpGet]
     public async Task<ActionResult<List<ArticleDto>>> GetArticles(
@@ -26,10 +28,12 @@ public class ArticleController(IArticleService service) : ControllerBase
         [FromQuery][Required] int pageSize,
         [FromQuery] bool allowNoUrl = false,
         [FromQuery] string? search = null,
-        [FromQuery] ArticleSearchBy? searchBy = null
+        [FromQuery] ArticleSearchBy? searchBy = null,
+        [FromQuery] string? orderBy = null,
+        [FromQuery] bool? desc = false
     )
     {
-        var res = await service.GetArticles(page, pageSize, allowNoUrl, search, searchBy);
+        var res = await service.GetArticles(page, pageSize, allowNoUrl, search, searchBy, orderBy, desc);
         return Ok(res.Unwrap());
     }
     
