@@ -11,4 +11,6 @@ public class CiteDto
     public string? Title { get; set; }
 
     [Column("flag")] public int Flag { get; set; } = 0;
+    
+    [Column("citing_title")] public string? CitingTitle { get; set; }
 }

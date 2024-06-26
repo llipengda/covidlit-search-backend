@@ -329,12 +329,14 @@ public class ArticleService(DbprojectContext context) : IArticleService
                  WITH RECURSIVE c AS (
                    SELECT citing_id, cited_id, 0 AS flag
                    FROM cite WHERE citing_id = {id}
-                   UNION ALL
+                   UNION
                    SELECT cite.citing_id, cite.cited_id, 1 AS flag
                    FROM c
                    JOIN cite ON c.cited_id = cite.citing_id
                  )
-                 SELECT cited_id AS "id", NULL AS "title", flag FROM c
+                 SELECT cited_id AS "id", NULL AS "title", flag, 
+                 CASE WHEN flag = 1 THEN (SELECT title FROM article WHERE id = citing_id) ELSE NULL END AS citing_title
+                 FROM c
                  """
             )
             .AsNoTracking()
