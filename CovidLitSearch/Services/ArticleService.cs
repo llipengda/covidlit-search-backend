@@ -148,7 +148,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
                  """
             )
             .AsNoTracking()
-            .SingleOrDefaultAsync();
+            .FirstOrDefaultAsync();
 
         if (article is null)
         {
