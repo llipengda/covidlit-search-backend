@@ -60,4 +60,16 @@ public class CollectController(ICollectService service) : ControllerBase
             NoContent, BadRequest
         );
     }
+    
+    /// <summary>
+    ///  Check if an article is collected
+    /// </summary>
+    /// <param name="articleId"></param>
+    /// <returns></returns>
+    [HttpGet("is/{articleId}")]
+    [Authorize]
+    public async Task<ActionResult<bool>> IsCollected(string articleId)
+    {
+        return (await service.IsCollected(User.GetId(), articleId)).Unwrap();
+    }
 }

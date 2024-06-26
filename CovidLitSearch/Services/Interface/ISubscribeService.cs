@@ -10,4 +10,6 @@ public interface ISubscribeService
     Task<Result<List<Subscribe>, Error>> GetSubscribes(int page, int pageSize, int userId);
     
     Task<Result<Error>> DeleteSubscribe(int userId, string journalName);
+    
+    Task<Result<bool, Error>> IsSubscribed(int userId, string journalName);
 }
