@@ -100,15 +100,21 @@ public class ArticleController(IArticleService service) : ControllerBase
     /// <param name="allowNoUrl"></param>
     /// <param name="search"></param>
     /// <param name="searchBy"></param>
+    /// <param name="from"></param>
+    /// <param name="to"></param>
+    /// <param name="refine"></param>
     /// <returns></returns>
     [HttpGet("count")]
     public async Task<ActionResult<int>> GetArticlesCount(
         [FromQuery] bool allowNoUrl = false,
         [FromQuery] string? search = null,
-        [FromQuery] ArticleSearchBy? searchBy = null
+        [FromQuery] ArticleSearchBy? searchBy = null,
+        [FromQuery] DateTime? from = null,
+        [FromQuery] DateTime? to = null,
+        [FromQuery] string? refine = null
     )
     {
-        var res = await service.GetArticlesCount(allowNoUrl, search, searchBy);
+        var res = await service.GetArticlesCount(allowNoUrl, search, searchBy, from, to, refine);
         return Ok(res.Unwrap());
     }
 
