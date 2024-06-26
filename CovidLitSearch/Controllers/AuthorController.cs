@@ -41,4 +41,17 @@ public class AuthorController(IAuthorService service) : ControllerBase
         return data.Match<ActionResult<Author>>(author => Ok(author), _ => NotFound());
     }
     
+    /// <summary>
+    /// Get authors count
+    /// </summary>
+    /// <param name="search"></param>
+    /// <returns></returns>
+    [HttpGet("count")]
+    public async Task<ActionResult<int>> GetAuthorsCount(
+        string? search = null
+    )
+    {
+        return (await service.GetAuthorsCount(search)).Unwrap();
+    }
+    
 }

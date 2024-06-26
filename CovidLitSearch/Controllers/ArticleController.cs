@@ -37,6 +37,13 @@ public class ArticleController(IArticleService service) : ControllerBase
         return Ok(res.Unwrap());
     }
     
+    /// <summary>
+    ///  Get articles count
+    /// </summary>
+    /// <param name="allowNoUrl"></param>
+    /// <param name="search"></param>
+    /// <param name="searchBy"></param>
+    /// <returns></returns>
     [HttpGet("count")]
     public async Task<ActionResult<int>> GetArticlesCount(
         [FromQuery] bool allowNoUrl = false,

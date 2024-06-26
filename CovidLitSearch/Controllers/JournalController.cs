@@ -41,4 +41,17 @@ public class JournalController(IJournalService service) : ControllerBase
         return data.Match<ActionResult<Journal>>(journal => Ok(journal), _ => NotFound());
     }
     
+    /// <summary>
+    /// Get journals count
+    /// </summary>
+    /// <param name="search"></param>
+    /// <returns></returns>
+    [HttpGet("count")]
+    public async Task<ActionResult<int>> GetJournalsCount(
+        string? search = null
+    )
+    {
+        return (await service.GetJournalsCount(search)).Unwrap();
+    }
+    
 }

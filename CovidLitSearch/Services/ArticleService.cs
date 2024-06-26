@@ -65,7 +65,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
         var query = $"""
                      SELECT article.*, publish.*
                      FROM article
-                     LEFT JOIN publish on article.id = publish.article_id
+                     JOIN publish on article.id = publish.article_id
                      {searchQuery}
                      LIMIT @pageSize OFFSET @offset
                      """;
@@ -87,19 +87,19 @@ public class ArticleService(DbprojectContext context) : IArticleService
         ArticleSearchBy? searchBy
     )
     {
-        var searchQuery = searchBy switch
+        var searchQuery =  searchBy switch
         {
-            ArticleSearchBy.Title => "WHERE article.title LIKE @search",
-            ArticleSearchBy.Author => "WHERE article.authors LIKE @search",
-            ArticleSearchBy.Journal => "WHERE article.journal LIKE @search",
+            ArticleSearchBy.Title => "WHERE (article.title LIKE @search)",
+            ArticleSearchBy.Author => "WHERE (article.authors LIKE @search)",
+            ArticleSearchBy.Journal => "WHERE (journal_name LIKE @search)",
             ArticleSearchBy.Title | ArticleSearchBy.Author
-                => "WHERE article.title LIKE @search OR article.authors LIKE @search",
+                => "WHERE (article.title LIKE @search OR article.authors LIKE @search)",
             ArticleSearchBy.Author | ArticleSearchBy.Journal
-                => "WHERE article.authors LIKE @search OR article.journal LIKE @search",
+                => "WHERE (article.authors LIKE @search OR journal_name LIKE @search)",
             ArticleSearchBy.Title | ArticleSearchBy.Journal
-                => "WHERE article.title LIKE @search OR article.journal LIKE @search",
+                => "WHERE (article.title LIKE @search OR journal_name LIKE @search)",
             ArticleSearchBy.Author | ArticleSearchBy.Journal | ArticleSearchBy.Title
-                => "WHERE article.title LIKE @search OR article.authors LIKE @search OR article.journal LIKE @search",
+                => "WHERE (article.title LIKE @search OR article.authors LIKE @search OR journal_name LIKE @search)",
             _ => ""
         };
 
@@ -118,6 +118,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
         var countQuery = $"""
                           SELECT COUNT(*) AS "count"
                           FROM article
+                          JOIN publish on article.id = publish.article_id
                           {searchQuery}
                           """;
 

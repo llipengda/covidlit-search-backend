@@ -47,4 +47,17 @@ public class JournalService(DbprojectContext context) : IJournalService
 
         return data;
     }
+
+    public async Task<Result<int, Error>> GetJournalsCount(string? search)
+    {
+        var count = await context.Database.SqlQuery<CountType>(
+            $"""
+             SELECT COUNT(*) 
+             FROM "journal" 
+             WHERE "journal"."name" LIKE '%' || {search} || '%'
+             """
+        ).AsNoTracking().SingleOrDefaultAsync();
+
+        return new Result<int, Error>(count!.Count);
+    }
 }
