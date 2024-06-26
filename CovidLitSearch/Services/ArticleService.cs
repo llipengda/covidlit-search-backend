@@ -215,9 +215,8 @@ public class ArticleService(DbprojectContext context) : IArticleService
         return data;
     }
 
-    public async Task<Result<List<CiteDto>, Error>> GetCites(int page, int pageSize, string id)
+    public async Task<Result<List<CiteDto>, Error>> GetCites(string id)
     {
-        page = page <= 0 ? 1 : page;
         var data = await context
             .Database.SqlQuery<CiteDto>(
                 $"""
@@ -229,16 +228,14 @@ public class ArticleService(DbprojectContext context) : IArticleService
                    FROM c
                    JOIN cite ON c.cited_id = cite.citing_id
                  )
-                 SELECT cited_id AS "id", title FROM c JOIN article ON cited_id = "id" 
-                 ORDER BY title
-                 LIMIT {pageSize} OFFSET {(
-                     page - 1
-                 ) * pageSize}
+                 SELECT cited_id AS "id", NULL AS "title" FROM c
                  """
             )
             .AsNoTracking()
             .ToListAsync();
+            
+            data.ForEach(c => c.Title = GetArticleById(c.Id, null).Result.Unwrap().Title);
 
-        return data;
+            return data;
     }
 }

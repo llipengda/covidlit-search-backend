@@ -31,5 +31,5 @@ public interface IArticleService
         bool? desc
     );
 
-    Task<Result<List<CiteDto>, Error>> GetCites(int page, int pageSize, string id);
+    Task<Result<List<CiteDto>, Error>> GetCites(string id);
 }
