@@ -48,13 +48,15 @@ public class JournalController(IJournalService service) : ControllerBase
     /// Get journals count
     /// </summary>
     /// <param name="search"></param>
+    /// <param name="refine"></param>
     /// <returns></returns>
     [HttpGet("count")]
     public async Task<ActionResult<int>> GetJournalsCount(
-        string? search = null
+        string? search = null,
+        string? refine = null
     )
     {
-        return (await service.GetJournalsCount(search)).Unwrap();
+        return (await service.GetJournalsCount(search, refine)).Unwrap();
     }
     
     /// <summary>

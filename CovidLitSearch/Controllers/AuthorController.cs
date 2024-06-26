@@ -48,13 +48,15 @@ public class AuthorController(IAuthorService service) : ControllerBase
     /// Get authors count
     /// </summary>
     /// <param name="search"></param>
+    /// <param name="refine"></param>
     /// <returns></returns>
     [HttpGet("count")]
     public async Task<ActionResult<int>> GetAuthorsCount(
-        string? search = null
+        string? search = null,
+        string? refine = null
     )
     {
-        return (await service.GetAuthorsCount(search)).Unwrap();
+        return (await service.GetAuthorsCount(search, refine)).Unwrap();
     }
     
     /// <summary>

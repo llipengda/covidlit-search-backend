@@ -57,14 +57,19 @@ public class JournalService(DbprojectContext context) : IJournalService
         return data;
     }
 
-    public async Task<Result<int, Error>> GetJournalsCount(string? search)
+    public async Task<Result<int, Error>> GetJournalsCount(string? search, string? refine)
     {
-        var count = await context.Database.SqlQuery<CountType>(
+        var refineQuery = refine is not null ? $" AND journal.name LIKE '%{refine}%' " : "";
+        var parameters = new List<NpgsqlParameter>
+        {
+            new("search", $"%{search}%")
+        };
+        var count = await context.Database.SqlQueryRaw<CountType>(
             $"""
-             SELECT COUNT(*) 
+             SELECT COUNT(*)
              FROM "journal" 
-             WHERE "journal"."name" LIKE '%' || {search} || '%'
-             """
+             WHERE "journal"."name" LIKE @search {refineQuery}
+             """, parameters.ToArray()
         ).AsNoTracking().SingleOrDefaultAsync();
 
         return new Result<int, Error>(count!.Count);
