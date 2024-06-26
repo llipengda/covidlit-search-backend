@@ -13,4 +13,6 @@ public interface ICollectService
     Task<Result<Error>> DeleteCollect(int userId, string articleId);
     
     Task<Result<bool, Error>> IsCollected(int userId, string articleId);
+    
+    Task<Result<int, Error>> GetCollectsCount(int userId);
 }
