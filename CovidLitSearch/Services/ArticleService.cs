@@ -22,7 +22,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
     {
         page = page <= 0 ? 1 : page;
         
-        var requireUrl = !allowNoUrl ? "AND article.url IS NOT NULL" : "";
+        var requireUrl = !allowNoUrl ? "AND COALESCE(article.url, '111') <> '111'" : "";
         var searchQuery =  searchBy switch
         {
             ArticleSearchBy.Title => $"""
@@ -140,25 +140,21 @@ public class ArticleService(DbprojectContext context) : IArticleService
                    """,
             _ => ""
         };
-        if (!allowNoUrl)
+        
+        if (string.IsNullOrEmpty(searchQuery))
         {
-            if(string.IsNullOrEmpty(searchQuery)){
-                searchQuery = """
-                              SELECT
-                              	article.*,
-                              	publish.* 
-                              FROM
-                              	article
-                              	JOIN publish ON article.ID = publish.article_id 
-                              WHERE article.url IS NOT NULL;
-                              """;
-            if (!string.IsNullOrEmpty(searchQuery))
+            searchQuery = """
+                          SELECT
+                          	article.*,
+                          	publish.* 
+                          FROM
+                          	article
+                          	JOIN publish ON article.ID = publish.article_id 
+                          WHERE ( article.title LIKE @SEARCH ) 
+                          """;
+            if (!allowNoUrl)
             {
-                searchQuery += " AND COALESCE(article.url, '111') <> '111'";
-            }
-            else
-            {
-                searchQuery = "WHERE COALESCE(article.url, '111') <> '111'";
+                searchQuery += "AND COALESCE(article.url, '111') <> '111';";
             }
         }
 
