@@ -41,7 +41,7 @@ public class ArticleService(DbprojectContext context) : IArticleService
             }
         }
 
-        var refineQuery = refine is not null ? $" AND (article.title LIKE '%{refine}%' OR article.authors LIKE '%{refine}%' OR journal_name LIKE '%{refine}%')" : "";
+        var refineQuery = refine is not null ? $" AND (article.title LIKE '%{refine}%' OR article.authors LIKE '%{refine}%')" : "";
         var searchQuery =  searchBy switch
         {
             ArticleSearchBy.Title => $"""
@@ -231,126 +231,103 @@ public class ArticleService(DbprojectContext context) : IArticleService
             }
         }
         var refineQuery = refine is not null 
-	        ? $" AND (article.title LIKE '%{refine}%' OR article.authors LIKE '%{refine}%' OR journal_name LIKE '%{refine}%')" : "";
+	        ? $" AND (article.title LIKE '%{refine}%' OR article.authors LIKE '%{refine}%')" : "";
         var searchQuery =  searchBy switch
         {
             ArticleSearchBy.Title => $"""
-                                     SELECT COUNT(*) AS "count" FROM (
                                      SELECT
-                                     	article.*,
-                                     	publish.* 
+                                     	COUNT(*) as "count"
                                      FROM
                                      	article
-                                     	JOIN publish ON article.ID = publish.article_id 
                                      WHERE
-                                     	( article.title LIKE @SEARCH {refineQuery}) {requireUrl} {dateQuery})
+                                     	( article.title LIKE @SEARCH {refineQuery}) {requireUrl} {dateQuery}
                                      """,
             ArticleSearchBy.Author => $"""
-                                      SELECT COUNT(*) AS "count" FROM (
                                       SELECT
-                                      	article.*,
-                                      	publish.* 
+                                      	COUNT(*) as "count"
                                       FROM
                                       	article
-                                      	JOIN publish ON article.ID = publish.article_id 
                                       WHERE 
-                                          (article.authors LIKE @search {refineQuery}) {requireUrl} {dateQuery})
+                                          (article.authors LIKE @search {refineQuery}) {requireUrl} {dateQuery}
                                       """,
             ArticleSearchBy.Journal => $"""
-                                       SELECT COUNT(*) AS "count" FROM (
                                        SELECT
-                                       	article.*,
-                                       	publish.* 
+                                       	COUNT(*) as "count"
                                        FROM
                                        	article
-                                       	JOIN publish ON article.ID = publish.article_id 
-                                       WHERE (journal_name LIKE @search {refineQuery}) {requireUrl} {dateQuery})
+                                       JOIN publish ON article.ID = publish.article_id 
+                                       WHERE (journal_name LIKE @search {refineQuery}) {requireUrl} {dateQuery}
                                        """,
             ArticleSearchBy.Title | ArticleSearchBy.Author
                 => $"""
-                   SELECT COUNT(*) AS "count" FROM (
+                   SELECT SUM("count") AS "count" FROM (
                    SELECT
-                   	article.*,
-                   	publish.* 
+                   	COUNT(*) as "count" 
                    FROM
                    	article
-                   	JOIN publish ON article.ID = publish.article_id 
                    WHERE
                    	article.title LIKE @search {refineQuery} {requireUrl} {dateQuery} UNION
                    SELECT
-                   	article.*,
-                   	publish.* 
+                   	COUNT(*) as "count"
                    FROM
                    	article
-                   	JOIN publish ON article.ID = publish.article_id 
                    WHERE
                    	article.authors LIKE @search {refineQuery} {requireUrl} {dateQuery})
                    """,
             ArticleSearchBy.Author | ArticleSearchBy.Journal
                 => $"""
-                    SELECT COUNT(*) AS "count" FROM (
+                    SELECT SUM("count") AS "count" FROM (
                     SELECT
-                    	article.*,
-                    	publish.* 
+                    	COUNT(*) as "count"
                     FROM
                     	article
-                    	JOIN publish ON article.ID = publish.article_id 
+                    JOIN publish ON article.ID = publish.article_id 
                     WHERE
                     	journal_name LIKE @search {refineQuery} {requireUrl} {dateQuery} UNION
                     SELECT
-                    	article.*,
-                    	publish.* 
+                    	COUNT(*) as "count"
                     FROM
                     	article
-                    	JOIN publish ON article.ID = publish.article_id 
                     WHERE
                     	article.authors LIKE @search {refineQuery} {requireUrl} {dateQuery})
                     """,
             ArticleSearchBy.Title | ArticleSearchBy.Journal
                 => $"""
-                   SELECT COUNT(*) AS "count" FROM (
+                   SELECT SUM("count") AS "count" FROM (
                    SELECT
-                   	article.*,
-                   	publish.* 
+                   	COUNT(*) as "count"
                    FROM
                    	article
-                   	JOIN publish ON article.ID = publish.article_id 
+                   JOIN publish ON article.ID = publish.article_id 
                    WHERE
                    	journal_name LIKE @search {refineQuery} {requireUrl} {dateQuery} UNION 
                    SELECT
-                   	article.*,
-                   	publish.* 
+                   	COUNT(*) as "count"
                    FROM
                    	article
-                   	JOIN publish ON article.ID = publish.article_id 
                    WHERE
                    	article.title LIKE @search {refineQuery} {requireUrl} {dateQuery})
                    """,
             ArticleSearchBy.Author | ArticleSearchBy.Journal | ArticleSearchBy.Title
                 => $"""
-                   SELECT COUNT(*) AS "count" FROM (
+                   SELECT SUM("count") AS "count" FROM (
                    SELECT
-                   	article.*,
-                   	publish.* 
+                   	COUNT(*) as "count"
                    FROM
                    	article
-                   	JOIN publish ON article.ID = publish.article_id 
+                   JOIN publish ON article.ID = publish.article_id 
                    WHERE
                    	journal_name LIKE @search {refineQuery} {requireUrl} {dateQuery} UNION
                    SELECT
-                   	article.*,
-                   	publish.* 
+                    COUNT(*) as "count"
                    FROM
                    	article
-                   	JOIN publish ON article.ID = publish.article_id 
                    WHERE
                    	article.authors LIKE @search {refineQuery} {requireUrl} {dateQuery} UNION
                    SELECT
-                   	article.*,
-                   	publish.* 
+                   	COUNT(*) as "count"
                    FROM
                    	article
-                   	JOIN publish ON article.ID = publish.article_id 
                    WHERE
                    	article.title LIKE @search {refineQuery} {requireUrl} {dateQuery})
                    """,
@@ -364,7 +341,6 @@ public class ArticleService(DbprojectContext context) : IArticleService
                            	COUNT(*) AS "count"
                            FROM
                            	article
-                           	JOIN publish ON article.ID = publish.article_id 
                            WHERE ( article.title LIKE @SEARCH {refineQuery} {dateQuery} {requireUrl}) 
                            """;
         }
