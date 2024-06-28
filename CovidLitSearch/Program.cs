@@ -4,6 +4,7 @@ using CovidLitSearch.Profiles;
 using CovidLitSearch.Utilities;
 using CovidLitSearch.Utilities.Filters;
 using Microsoft.AspNetCore.Rewrite;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,7 +46,7 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(
 
 builder.Services.AddMemoryCache();
 
-builder.Services.AddDbContext<DbprojectContext>();
+builder.Services.AddDbContextPool<DbprojectContext>(options => options.UseNpgsql("Name = ConnectionStrings:DBProject"));
 
 builder.Services.AddServices();
 
