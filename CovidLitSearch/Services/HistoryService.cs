@@ -54,8 +54,6 @@ public class HistoryService(DbprojectContext context) : IHistoryService
                    "history"
                  WHERE
                    "user_id" = {userId}
-                 ORDER BY
-                   "time" DESC
                  """
             )
             .AsNoTracking()
