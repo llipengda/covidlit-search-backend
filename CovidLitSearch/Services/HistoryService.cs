@@ -57,8 +57,8 @@ public class HistoryService(DbprojectContext context) : IHistoryService
                  """
             )
             .AsNoTracking()
-            .ToListAsync();
+            .SingleOrDefaultAsync();
 
-        return data.Count;
+        return data?.Count ?? 0;
     }
 }
