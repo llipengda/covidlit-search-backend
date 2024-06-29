@@ -26,4 +26,11 @@ public class HistoryController(IHistoryService service) : ControllerBase
     {
         return (await service.GetHistory(User.GetId(), page, pageSize)).Unwrap();
     }
+    
+    [HttpGet("count")]
+    [Authorize]
+    public async Task<ActionResult<int>> GetHistoryCount()
+    {
+        return (await service.GetHistoryCount(User.GetId())).Unwrap();
+    }
 }

@@ -40,4 +40,27 @@ public class HistoryService(DbprojectContext context) : IHistoryService
 
         return data;
     }
+    
+    public async Task<Result<int, Error>> GetHistoryCount(
+        int userId
+    )
+    {
+        var data = await context
+            .Database.SqlQuery<CountType>(
+                $"""
+                 SELECT
+                   COUNT(*) AS "count"
+                 FROM
+                   "history"
+                 WHERE
+                   "user_id" = {userId}
+                 ORDER BY
+                   "time" DESC
+                 """
+            )
+            .AsNoTracking()
+            .ToListAsync();
+
+        return data.Count;
+    }
 }
